@@ -2,6 +2,14 @@
 
 此文件从首个正式版本开始记录发布变化。
 
+## [1.0.1] - 2026-07-19
+
+### Changed
+
+- 恢复 v0.6.2 的原始背景、卡片、图标和状态区域视觉设计。
+- 移除 v1.0.0 新增的氛围网格、斜向光束、粒子和重渐变效果。
+- 保留 `CLIProxy` 安装名称与 v1 正式发布体系。
+
 ## [1.0.0] - 2026-07-18
 
 ### 正式发布
@@ -15,3 +23,4 @@
 - 提供 ARM64 APK 与 SHA-256 完整性校验文件。
 
 [1.0.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.0
+[1.0.1]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.1

@@ -271,25 +271,14 @@ class _Header extends StatelessWidget {
                     context,
                   ).textTheme.titleMedium?.copyWith(letterSpacing: -0.25),
                 ),
-                const Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'CODEX QUOTA CONSOLE',
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        style: TextStyle(
-                          color: Color(0xFF748198),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.05,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 7),
-                    _VersionBadge(),
-                  ],
+                const Text(
+                  'CODEX QUOTA CONSOLE',
+                  style: TextStyle(
+                    color: Color(0xFF748198),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.05,
+                  ),
                 ),
               ],
             ),
@@ -347,32 +336,6 @@ class _SettingsButton extends StatefulWidget {
 
   @override
   State<_SettingsButton> createState() => _SettingsButtonState();
-}
-
-class _VersionBadge extends StatelessWidget {
-  const _VersionBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppTheme.cyan.withValues(alpha: 0.09),
-        borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: AppTheme.cyan.withValues(alpha: 0.28)),
-        boxShadow: const [BoxShadow(color: Color(0x2638E8FF), blurRadius: 8)],
-      ),
-      child: const Text(
-        'V1.0',
-        style: TextStyle(
-          color: AppTheme.cyan,
-          fontSize: 7,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.6,
-        ),
-      ),
-    );
-  }
 }
 
 class _SettingsButtonState extends State<_SettingsButton> {
@@ -791,21 +754,12 @@ class _ServicePanel extends StatelessWidget {
     final online = error == null;
     final color = online ? AppTheme.success : AppTheme.warning;
     return Container(
-      height: 42,
+      height: 38,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color.withValues(alpha: 0.09),
-            const Color(0xB2111827),
-            const Color(0x9C0D1422),
-          ],
-        ),
+        color: const Color(0x8A111827),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.24)),
-        boxShadow: [
-          BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 14),
-        ],
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
@@ -1047,24 +1001,9 @@ class _StatCard extends StatelessWidget {
       height: 62,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.13),
-            const Color(0xB2111827),
-            const Color(0xA60D1422),
-          ],
-        ),
+        color: const Color(0x9C111827),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.24), width: 0.7),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(color: color.withValues(alpha: 0.16), width: 0.7),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1263,32 +1202,9 @@ class _LoadingPanel extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox.square(
-                    dimension: 74,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: AppTheme.cyan,
-                      backgroundColor: Color(0x2638E8FF),
-                    ),
-                  ),
-                  GradientIcon(icon: Icons.hub_rounded, size: 50, iconSize: 23),
-                ],
-              ),
-              SizedBox(height: 20),
+              CircularProgressIndicator(),
+              SizedBox(height: 18),
               Text('正在同步账号额度…'),
-              SizedBox(height: 5),
-              Text(
-                'SECURE MANAGEMENT CHANNEL',
-                style: TextStyle(
-                  color: Color(0xFF718097),
-                  fontSize: 8,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.1,
-                ),
-              ),
             ],
           ),
         ),

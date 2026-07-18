@@ -16,20 +16,13 @@ class AppTheme {
   static const backgroundGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF05070D),
-      Color(0xFF090E1B),
-      Color(0xFF0C1324),
-      Color(0xFF080C16),
-    ],
-    stops: [0, 0.36, 0.72, 1],
+    colors: [Color(0xFF070A12), Color(0xFF0A1020), Color(0xFF0D1322)],
   );
 
   static const cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xF51A2538), Color(0xF0141C2C), Color(0xF00D1422)],
-    stops: [0, 0.52, 1],
+    colors: [Color(0xF21A2333), Color(0xF2111826)],
   );
 
   static ThemeData get dark {
@@ -44,7 +37,6 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: background,
       fontFamily: 'sans-serif',
-      splashFactory: InkSparkle.splashFactory,
       textTheme: const TextTheme(
         headlineMedium: TextStyle(
           fontWeight: FontWeight.w800,
@@ -78,26 +70,6 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         backgroundColor: const Color(0xEE172238),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-      ),
-      dividerTheme: const DividerThemeData(
-        color: Color(0x332D3C55),
-        thickness: 0.7,
-      ),
-      iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(
-          foregroundColor: const Color(0xFFDCE5F7),
-          backgroundColor: const Color(0x52152030),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: Color(0x332E4262)),
-          ),
-        ),
       ),
     );
   }
