@@ -139,10 +139,35 @@ class _ConfigScreenState extends State<ConfigScreen>
                                         Navigator.of(context).pop(),
                                     icon: const Icon(Icons.arrow_back_rounded),
                                   ),
-                                if (canPop) const SizedBox(width: 4),
-                                Text(
-                                  '连接配置',
-                                  style: Theme.of(context).textTheme.titleLarge,
+                                if (canPop) const SizedBox(width: 6),
+                                const GradientIcon(
+                                  icon: Icons.hub_rounded,
+                                  size: 38,
+                                  iconSize: 19,
+                                ),
+                                const SizedBox(width: 11),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '连接配置',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleLarge,
+                                      ),
+                                      const Text(
+                                        'CLIPROXY · SECURE SETUP · V1.0',
+                                        style: TextStyle(
+                                          color: Color(0xFF748198),
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.85,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

@@ -95,7 +95,7 @@ class _CliProxyCompanionAppState extends State<CliProxyCompanionApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CLIProxy Companion',
+      title: 'CLIProxy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       home: _loading

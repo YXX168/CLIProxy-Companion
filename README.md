@@ -13,7 +13,7 @@
 
 </div>
 
-CLIProxy Companion 是面向 [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) 的 Android 管理端伴侣应用。它将 Codex OAuth 账号状态、额度窗口、重置时间和近期请求活动集中展示在一个适合移动端查看的仪表盘中。
+CLIProxy Companion 是面向 [CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) 的 Android 管理端伴侣应用，安装后的应用名称为 **CLIProxy**。它将 Codex OAuth 账号状态、额度窗口、重置时间和近期请求活动集中展示在一个适合移动端查看的仪表盘中。
 
 > 本项目是独立的社区客户端，不隶属于 CLIProxyAPI 或相关服务提供方。
 
@@ -21,11 +21,11 @@ CLIProxy Companion 是面向 [CLIProxyAPI](https://github.com/router-for-me/CLIP
 
 - 查看 Codex OAuth 账号、套餐与可用状态
 - 展示 5 小时、周/月额度及重置时间
-- 实时倒计时、账户详情与额度重置操作
+- 实时倒计时、账号详情与主动重置额度信息
 - 汇总近期请求脉冲、趋势、成功率和异常时段
 - 支持手动刷新、下拉刷新与自动刷新
-- 提供标准、紧凑、能量核心三种显示模式
-- 使用暗色霓虹玻璃拟态界面与系统触觉反馈
+- 提供深海控制台、能量核心两种显示模式
+- 使用暗色霓虹玻璃拟态、氛围网格、动态能量核心与系统触觉反馈
 - 将 Management API 地址和管理密钥保存在 Android 安全存储中
 
 ## 安装
@@ -85,6 +85,6 @@ flutter build apk --release --target-platform android-arm64
 
 ## 项目状态
 
-当前版本：`0.6.2+9`
+当前正式版：`1.0.0+10`
 
-项目仍在持续迭代中。欢迎通过 Issue 报告问题或提出建议。
+项目已进入正式维护阶段。欢迎通过 Issue 报告问题或提出建议。
