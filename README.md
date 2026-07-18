@@ -36,6 +36,12 @@ CLIProxy Companion 是面向 [CLIProxyAPI](https://github.com/router-for-me/CLIP
 
 当前仅构建 `android-arm64`，适用于大多数现代 Android 手机。
 
+正式版签名证书 SHA-256：
+
+```text
+E5:D0:2E:42:C3:C2:10:6B:39:91:3E:11:03:13:C0:B9:5B:2F:28:00:A7:CE:26:09:3B:F8:75:F8:A8:FD:23:BB
+```
+
 ### GitHub Actions
 
 `main` 分支的成功构建会保留 30 天 Artifact。正式使用建议优先下载带版本号的 Release。
