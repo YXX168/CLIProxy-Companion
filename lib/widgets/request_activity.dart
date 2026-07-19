@@ -155,6 +155,22 @@ class _RequestSparklinePainter extends CustomPainter {
       line,
       Paint()
         ..style = PaintingStyle.stroke
+        ..strokeWidth = 7
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+        ..shader = LinearGradient(
+          colors: [
+            AppTheme.cyan.withValues(alpha: 0.24),
+            AppTheme.violet.withValues(alpha: 0.2),
+            AppTheme.magenta.withValues(alpha: 0.18),
+          ],
+        ).createShader(Offset.zero & size),
+    );
+    canvas.drawPath(
+      line,
+      Paint()
+        ..style = PaintingStyle.stroke
         ..strokeWidth = 2.2
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
@@ -164,6 +180,9 @@ class _RequestSparklinePainter extends CustomPainter {
     );
 
     final failurePaint = Paint()..color = AppTheme.danger;
+    final failureGlow = Paint()
+      ..color = AppTheme.danger.withValues(alpha: 0.24)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
     for (var index = 0; index < buckets.length; index++) {
       if (buckets[index].failed == 0) continue;
       final x = index * step;
@@ -171,6 +190,7 @@ class _RequestSparklinePainter extends CustomPainter {
           size.height -
           (buckets[index].total / maxValue * (size.height - 8)) -
           4;
+      canvas.drawCircle(Offset(x, y), 5, failureGlow);
       canvas.drawCircle(Offset(x, y), 2.5, failurePaint);
     }
   }

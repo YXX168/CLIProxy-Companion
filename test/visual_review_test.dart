@@ -1,0 +1,126 @@
+import 'package:cliproxy_companion/models/app_config.dart';
+import 'package:cliproxy_companion/models/codex_account.dart';
+import 'package:cliproxy_companion/models/dashboard_snapshot.dart';
+import 'package:cliproxy_companion/models/quota_window.dart';
+import 'package:cliproxy_companion/models/request_bucket.dart';
+import 'package:cliproxy_companion/models/visual_mode.dart';
+import 'package:cliproxy_companion/screens/dashboard_screen.dart';
+import 'package:cliproxy_companion/services/quota_repository.dart';
+import 'package:cliproxy_companion/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+class _ReviewRepository implements QuotaRepository {
+  @override
+  Future<DashboardSnapshot> fetchDashboard() async => DashboardSnapshot(
+    checkedAt: DateTime(2026, 7, 19, 10, 28),
+    accounts: [
+      _account('amy', 'amy***@example.com', 'plus', 82, 61, 128, 2),
+      _account('neo', 'neo***@example.com', 'team', 46, 72, 96, 0),
+      _account('kai', 'kai***@example.com', 'plus', 18, 35, 62, 8),
+    ],
+  );
+
+  CodexAccount _account(
+    String id,
+    String name,
+    String plan,
+    double primary,
+    double secondary,
+    int success,
+    int failed,
+  ) => CodexAccount(
+    id: id,
+    authIndex: id,
+    name: name,
+    email: name,
+    plan: plan,
+    available: true,
+    limitReached: false,
+    primary: QuotaWindow(
+      usedPercent: 100 - primary,
+      remainingPercent: primary,
+      resetAt: DateTime(2026, 7, 19, 15),
+    ),
+    secondary: QuotaWindow(
+      usedPercent: 100 - secondary,
+      remainingPercent: secondary,
+      resetAt: DateTime(2026, 7, 26),
+    ),
+    secondaryLabel: plan == 'team' ? '月度额度' : '周额度',
+    resetCredits: 3,
+    successRequests: success,
+    failedRequests: failed,
+    recentRequests: List.generate(
+      12,
+      (index) => RequestBucket(
+        time: DateTime(2026, 7, 19, 9, index * 5),
+        success: 3 + (index * 7 + id.length) % 11,
+        failed: index == 4 || index == 9 ? 2 : 0,
+      ),
+    ),
+  );
+}
+
+Future<void> _render(
+  WidgetTester tester,
+  VisualMode mode,
+  String golden, {
+  double scrollOffset = 0,
+}) async {
+  await tester.binding.setSurfaceSize(const Size(420, 960));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.dark,
+      home: DashboardScreen(
+        config: const AppConfig(
+          baseUrl: 'https://example.com/v0/management',
+          key: 'preview',
+        ),
+        repository: _ReviewRepository(),
+        visualMode: mode,
+        onVisualModeChanged: (_) async {},
+        onEditConfig: () async {},
+        autoRefreshInterval: Duration.zero,
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 800));
+  if (scrollOffset > 0) {
+    await tester.drag(
+      find.byKey(const Key('dashboard-scroll')),
+      Offset(0, -scrollOffset),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+  await expectLater(
+    find.byType(DashboardScreen),
+    matchesGoldenFile('goldens/$golden.png'),
+  );
+}
+
+void main() {
+  testWidgets('matches console dashboard visual baseline', (tester) async {
+    await _render(tester, VisualMode.console, 'dashboard_console');
+  });
+
+  testWidgets('matches console account-card visual baseline', (tester) async {
+    await _render(
+      tester,
+      VisualMode.console,
+      'dashboard_console_accounts',
+      scrollOffset: 430,
+    );
+  });
+
+  testWidgets('matches energy account-card visual baseline', (tester) async {
+    await _render(
+      tester,
+      VisualMode.energy,
+      'dashboard_energy_accounts',
+      scrollOffset: 430,
+    );
+  });
+}

@@ -37,12 +37,15 @@ class AccountDetailScreen extends StatelessWidget {
                       borderColor: statusColor.withValues(alpha: 0.34),
                       child: Column(
                         children: [
-                          GradientIcon(
-                            icon: account.hasError
-                                ? Icons.cloud_off_rounded
-                                : Icons.smart_toy_rounded,
-                            size: 68,
-                            iconSize: 34,
+                          Hero(
+                            tag: 'account-${account.id}',
+                            child: GradientIcon(
+                              icon: account.hasError
+                                  ? Icons.cloud_off_rounded
+                                  : Icons.smart_toy_rounded,
+                              size: 68,
+                              iconSize: 34,
+                            ),
                           ),
                           const SizedBox(height: 18),
                           Text(

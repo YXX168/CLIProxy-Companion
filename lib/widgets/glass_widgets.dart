@@ -15,14 +15,31 @@ class AppBackdrop extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           const Positioned(
-            top: -140,
-            right: -120,
-            child: _GlowOrb(size: 320, color: AppTheme.violet),
+            top: -150,
+            right: -125,
+            child: _GlowOrb(size: 340, color: AppTheme.violet, intensity: 0.14),
           ),
           const Positioned(
-            bottom: -150,
+            top: 120,
+            left: -190,
+            child: _GlowOrb(size: 330, color: AppTheme.cyan, intensity: 0.065),
+          ),
+          const Positioned(
+            bottom: 80,
+            right: -250,
+            child: _GlowOrb(
+              size: 440,
+              color: AppTheme.magenta,
+              intensity: 0.045,
+            ),
+          ),
+          const Positioned(
+            bottom: -170,
             left: -150,
-            child: _GlowOrb(size: 360, color: AppTheme.cyan),
+            child: _GlowOrb(size: 390, color: AppTheme.cyan, intensity: 0.12),
+          ),
+          const Positioned.fill(
+            child: IgnorePointer(child: _BackdropVignette()),
           ),
           child,
         ],
@@ -32,10 +49,15 @@ class AppBackdrop extends StatelessWidget {
 }
 
 class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({required this.size, required this.color});
+  const _GlowOrb({
+    required this.size,
+    required this.color,
+    required this.intensity,
+  });
 
   final double size;
   final Color color;
+  final double intensity;
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +68,29 @@ class _GlowOrb extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            colors: [color.withValues(alpha: 0.16), color.withValues(alpha: 0)],
+            colors: [
+              color.withValues(alpha: intensity),
+              color.withValues(alpha: 0),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BackdropVignette extends StatelessWidget {
+  const _BackdropVignette();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment(0, -0.35),
+          radius: 1.3,
+          colors: [Colors.transparent, Color(0x08000000), Color(0x26000000)],
+          stops: [0.42, 0.75, 1],
         ),
       ),
     );
@@ -93,14 +136,39 @@ class GlassCard extends StatelessWidget {
       margin: margin,
       child: onTap == null
           ? content
-          : Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(22),
-                onTap: onTap,
-                child: content,
-              ),
-            ),
+          : _PressableGlassSurface(onTap: onTap!, child: content),
+    );
+  }
+}
+
+class _PressableGlassSurface extends StatefulWidget {
+  const _PressableGlassSurface({required this.onTap, required this.child});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  State<_PressableGlassSurface> createState() => _PressableGlassSurfaceState();
+}
+
+class _PressableGlassSurfaceState extends State<_PressableGlassSurface> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: _pressed ? 0.987 : 1,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOutCubic,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          onTap: widget.onTap,
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

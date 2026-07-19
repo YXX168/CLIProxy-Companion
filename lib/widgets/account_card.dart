@@ -32,10 +32,13 @@ class AccountCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              GradientIcon(
-                icon: account.hasError
-                    ? Icons.cloud_off_rounded
-                    : Icons.smart_toy_rounded,
+              Hero(
+                tag: 'account-${account.id}',
+                child: GradientIcon(
+                  icon: account.hasError
+                      ? Icons.cloud_off_rounded
+                      : Icons.smart_toy_rounded,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(

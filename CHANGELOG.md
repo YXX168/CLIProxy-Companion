@@ -2,6 +2,19 @@
 
 此文件从首个正式版本开始记录发布变化。
 
+## [1.1.0] - 2026-07-19
+
+### Changed
+
+- 在 v0.6.2 视觉基线上加入低饱和青、紫、洋红极光雾化背景与轻微暗角。
+- 为请求曲线和失败节点增加克制的柔光层，保留原有线型和信息层级。
+- 账号卡片增加轻量按压反馈，控制台卡片进入详情页时使用 Hero 转场。
+- 新增首页、控制台账号卡片和能量核心账号卡片的视觉回归基准。
+
+### Quality
+
+- 固定 420 × 960 手机画布进行视觉回归，防止背景或渐变再次压过内容。
+
 ## [1.0.1] - 2026-07-19
 
 ### Changed
@@ -24,3 +37,4 @@
 
 [1.0.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.0
 [1.0.1]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.1
+[1.1.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.1.0
