@@ -91,6 +91,6 @@ flutter build apk --release --target-platform android-arm64
 
 ## 项目状态
 
-当前正式版：`1.1.0+12`
+当前正式版：`1.2.0+13`
 
 项目已进入正式维护阶段。欢迎通过 Issue 报告问题或提出建议。

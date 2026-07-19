@@ -167,7 +167,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         child: _loading
-                            ? const _LoadingPanel(key: ValueKey('loading'))
+                            ? _DashboardSkeleton(
+                                key: const ValueKey('loading'),
+                                visualMode: widget.visualMode,
+                              )
                             : _snapshot == null
                             ? _FatalErrorPanel(
                                 key: const ValueKey('fatal'),
@@ -1190,23 +1193,398 @@ class _AnimatedAccountCardState extends State<_AnimatedAccountCard>
   }
 }
 
-class _LoadingPanel extends StatelessWidget {
-  const _LoadingPanel({super.key});
+class _DashboardSkeleton extends StatefulWidget {
+  const _DashboardSkeleton({required this.visualMode, super.key});
+
+  final VisualMode visualMode;
+
+  @override
+  State<_DashboardSkeleton> createState() => _DashboardSkeletonState();
+}
+
+class _DashboardSkeletonState extends State<_DashboardSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1450),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const GlassCard(
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final phase = _controller.value;
+        return Column(
+          key: Key(
+            widget.visualMode == VisualMode.energy
+                ? 'energy-skeleton'
+                : 'console-skeleton',
+          ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SkeletonServiceBar(phase: phase),
+            const SizedBox(height: 10),
+            _SkeletonStats(phase: phase),
+            const SizedBox(height: 10),
+            _SkeletonPulseCard(phase: phase),
+            const SizedBox(height: 18),
+            _SkeletonSectionTitle(phase: phase),
+            const SizedBox(height: 10),
+            if (widget.visualMode == VisualMode.energy)
+              _EnergySkeletonGrid(phase: phase)
+            else ...[
+              _ConsoleAccountSkeleton(phase: phase),
+              const SizedBox(height: 14),
+              _ConsoleAccountSkeleton(phase: phase, compact: true),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SkeletonServiceBar extends StatelessWidget {
+  const _SkeletonServiceBar({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0x8A111827),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0x202F405A)),
+      ),
+      child: Row(
+        children: [
+          _SkeletonBlock(phase: phase, width: 8, height: 8, radius: 99),
+          const SizedBox(width: 9),
+          _SkeletonBlock(phase: phase, width: 72, height: 10),
+          const Spacer(),
+          _SkeletonBlock(phase: phase, width: 44, height: 9),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonStats extends StatelessWidget {
+  const _SkeletonStats({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var index = 0; index < 4; index++) ...[
+          if (index > 0) const SizedBox(width: 6),
+          Expanded(
+            child: Container(
+              height: 62,
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0x9C111827),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0x202A3952)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _SkeletonBlock(phase: phase, width: 34, height: 15),
+                  const SizedBox(height: 7),
+                  _SkeletonBlock(phase: phase, width: 48, height: 8),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _SkeletonPulseCard extends StatelessWidget {
+  const _SkeletonPulseCard({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: SizedBox(
-        height: 230,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        height: 92,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _SkeletonBlock(phase: phase, width: 8, height: 8, radius: 99),
+                const SizedBox(width: 8),
+                _SkeletonBlock(phase: phase, width: 112, height: 10),
+                const Spacer(),
+                _SkeletonBlock(phase: phase, width: 38, height: 18),
+                const SizedBox(width: 14),
+                _SkeletonBlock(phase: phase, width: 48, height: 18),
+              ],
+            ),
+            const Spacer(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final height in [18.0, 34.0, 24.0, 42.0, 28.0, 36.0])
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _SkeletonBlock(
+                        phase: phase,
+                        height: height,
+                        radius: 5,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonSectionTitle extends StatelessWidget {
+  const _SkeletonSectionTitle({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SkeletonBlock(phase: phase, width: 118, height: 18),
+        const SizedBox(height: 6),
+        _SkeletonBlock(phase: phase, width: 68, height: 9),
+      ],
+    );
+  }
+}
+
+class _ConsoleAccountSkeleton extends StatelessWidget {
+  const _ConsoleAccountSkeleton({required this.phase, this.compact = false});
+
+  final double phase;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(20),
+      child: SizedBox(
+        height: compact ? 180 : 220,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _SkeletonBlock(phase: phase, width: 48, height: 48, radius: 14),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SkeletonBlock(phase: phase, height: 14),
+                      const SizedBox(height: 8),
+                      _SkeletonBlock(phase: phase, width: 142, height: 9),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                _SkeletonBlock(phase: phase, width: 62, height: 30, radius: 99),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _SkeletonBlock(phase: phase, width: 74, height: 26, radius: 9),
+                const SizedBox(width: 8),
+                _SkeletonBlock(phase: phase, width: 92, height: 26, radius: 9),
+                const SizedBox(width: 8),
+                _SkeletonBlock(phase: phase, width: 76, height: 26, radius: 9),
+              ],
+            ),
+            const Spacer(),
+            _SkeletonBlock(phase: phase, width: 92, height: 10),
+            const SizedBox(height: 9),
+            _SkeletonBlock(phase: phase, height: 8, radius: 99),
+            if (!compact) ...[
+              const SizedBox(height: 17),
+              _SkeletonBlock(phase: phase, width: 82, height: 10),
+              const SizedBox(height: 9),
+              _SkeletonBlock(phase: phase, width: 238, height: 8, radius: 99),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EnergySkeletonGrid extends StatelessWidget {
+  const _EnergySkeletonGrid({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 10.0;
+        final columns = constraints.maxWidth >= 350 ? 2 : 1;
+        final width =
+            (constraints.maxWidth - (columns - 1) * spacing) / columns;
+        return Wrap(
+          key: const Key('energy-skeleton-grid'),
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (var index = 0; index < 3; index++)
+              SizedBox(
+                width: width,
+                child: _EnergyCoreSkeleton(phase: phase),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _EnergyCoreSkeleton extends StatelessWidget {
+  const _EnergyCoreSkeleton({required this.phase});
+
+  final double phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 226,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          colors: [Color(0xD8172236), Color(0xC40C1323)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: const Color(0x262A405B)),
+      ),
+      child: Column(
+        children: [
+          Row(
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 18),
-              Text('正在同步账号额度…'),
+              _SkeletonBlock(phase: phase, width: 7, height: 7, radius: 99),
+              const SizedBox(width: 7),
+              Expanded(child: _SkeletonBlock(phase: phase, height: 9)),
+              const SizedBox(width: 8),
+              _SkeletonBlock(phase: phase, width: 30, height: 8),
             ],
           ),
+          const Spacer(),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 108,
+                height: 108,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.cyan.withValues(alpha: 0.12),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                width: 86,
+                height: 86,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppTheme.cyan.withValues(alpha: 0.18),
+                  ),
+                ),
+              ),
+              _SkeletonBlock(phase: phase, width: 58, height: 22),
+            ],
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Expanded(child: _SkeletonBlock(phase: phase, height: 22)),
+              const SizedBox(width: 9),
+              Expanded(child: _SkeletonBlock(phase: phase, height: 22)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _SkeletonBlock(phase: phase, width: 122, height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonBlock extends StatelessWidget {
+  const _SkeletonBlock({
+    required this.phase,
+    this.width,
+    required this.height,
+    this.radius = 7,
+  });
+
+  final double phase;
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final center = -0.25 + phase * 1.5;
+    final start = (center - 0.24).clamp(0.0, 1.0).toDouble();
+    final middle = center.clamp(0.0, 1.0).toDouble();
+    final end = (center + 0.24).clamp(0.0, 1.0).toDouble();
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        gradient: LinearGradient(
+          colors: const [
+            Color(0xFF1B2537),
+            Color(0xFF33445E),
+            Color(0xFF1B2537),
+          ],
+          stops: [start, middle, end],
         ),
       ),
     );

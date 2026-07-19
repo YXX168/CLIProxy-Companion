@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cliproxy_companion/models/app_config.dart';
 import 'package:cliproxy_companion/models/codex_account.dart';
 import 'package:cliproxy_companion/models/dashboard_snapshot.dart';
 import 'package:cliproxy_companion/models/quota_window.dart';
 import 'package:cliproxy_companion/models/request_bucket.dart';
 import 'package:cliproxy_companion/models/visual_mode.dart';
+import 'package:cliproxy_companion/screens/account_detail_screen.dart';
 import 'package:cliproxy_companion/screens/dashboard_screen.dart';
 import 'package:cliproxy_companion/services/quota_repository.dart';
 import 'package:cliproxy_companion/theme/app_theme.dart';
@@ -62,6 +65,13 @@ class _ReviewRepository implements QuotaRepository {
   );
 }
 
+class _PendingRepository implements QuotaRepository {
+  final Completer<DashboardSnapshot> _completer = Completer();
+
+  @override
+  Future<DashboardSnapshot> fetchDashboard() => _completer.future;
+}
+
 Future<void> _render(
   WidgetTester tester,
   VisualMode mode,
@@ -101,6 +111,55 @@ Future<void> _render(
   );
 }
 
+Future<void> _renderSkeleton(
+  WidgetTester tester,
+  VisualMode mode,
+  String golden,
+) async {
+  await tester.binding.setSurfaceSize(const Size(420, 960));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.dark,
+      home: DashboardScreen(
+        config: const AppConfig(
+          baseUrl: 'https://example.com/v0/management',
+          key: 'preview',
+        ),
+        repository: _PendingRepository(),
+        visualMode: mode,
+        onVisualModeChanged: (_) async {},
+        onEditConfig: () async {},
+        autoRefreshInterval: Duration.zero,
+      ),
+    ),
+  );
+  await tester.pump(const Duration(milliseconds: 720));
+  await expectLater(
+    find.byType(DashboardScreen),
+    matchesGoldenFile('goldens/$golden.png'),
+  );
+}
+
+Future<void> _renderAccountTimeline(WidgetTester tester) async {
+  final snapshot = await _ReviewRepository().fetchDashboard();
+  await tester.binding.setSurfaceSize(const Size(420, 960));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.dark,
+      home: AccountDetailScreen(account: snapshot.accounts.first),
+    ),
+  );
+  await tester.pump(const Duration(milliseconds: 850));
+  await tester.drag(find.byType(CustomScrollView), const Offset(0, -310));
+  await tester.pump(const Duration(milliseconds: 300));
+  await expectLater(
+    find.byType(AccountDetailScreen),
+    matchesGoldenFile('goldens/account_reset_timeline.png'),
+  );
+}
+
 void main() {
   testWidgets('matches console dashboard visual baseline', (tester) async {
     await _render(tester, VisualMode.console, 'dashboard_console');
@@ -122,5 +181,28 @@ void main() {
       'dashboard_energy_accounts',
       scrollOffset: 430,
     );
+  });
+
+  testWidgets('matches console skeleton visual baseline', (tester) async {
+    await _renderSkeleton(
+      tester,
+      VisualMode.console,
+      'dashboard_console_skeleton',
+    );
+    expect(find.byKey(const Key('console-skeleton')), findsOneWidget);
+  });
+
+  testWidgets('matches energy skeleton visual baseline', (tester) async {
+    await _renderSkeleton(
+      tester,
+      VisualMode.energy,
+      'dashboard_energy_skeleton',
+    );
+    expect(find.byKey(const Key('energy-skeleton-grid')), findsOneWidget);
+  });
+
+  testWidgets('matches account reset-timeline visual baseline', (tester) async {
+    await _renderAccountTimeline(tester);
+    expect(find.byKey(const Key('quota-reset-timeline')), findsOneWidget);
   });
 }

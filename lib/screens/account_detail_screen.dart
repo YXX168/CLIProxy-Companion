@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/codex_account.dart';
 import '../theme/app_theme.dart';
@@ -107,6 +108,10 @@ class AccountDetailScreen extends StatelessWidget {
                               label: account.secondaryLabel,
                               window: account.secondary,
                             ),
+                            const SizedBox(height: 24),
+                            const Divider(height: 1),
+                            const SizedBox(height: 20),
+                            _ResetTimeline(account: account),
                           ],
                         ),
                       ),
@@ -147,6 +152,183 @@ class AccountDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ResetTimeline extends StatelessWidget {
+  const _ResetTimeline({required this.account});
+
+  final CodexAccount account;
+
+  @override
+  Widget build(BuildContext context) {
+    final events =
+        [
+          _ResetEvent(
+            label: '5 小时限额',
+            time: account.primary?.resetAt,
+            color: AppTheme.cyan,
+            icon: Icons.bolt_rounded,
+          ),
+          _ResetEvent(
+            label: account.secondaryLabel,
+            time: account.secondary?.resetAt,
+            color: AppTheme.violet,
+            icon: Icons.calendar_month_rounded,
+          ),
+        ]..sort((left, right) {
+          if (left.time == null && right.time == null) return 0;
+          if (left.time == null) return 1;
+          if (right.time == null) return -1;
+          return left.time!.compareTo(right.time!);
+        });
+
+    return Column(
+      key: const Key('quota-reset-timeline'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.timeline_rounded, color: AppTheme.cyan, size: 18),
+            const SizedBox(width: 9),
+            Text(
+              '重置时间轴',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontSize: 15),
+            ),
+            const Spacer(),
+            const Text(
+              'NEXT WINDOWS',
+              style: TextStyle(
+                color: Color(0xFF6F7E96),
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.9,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        for (var index = 0; index < events.length; index++)
+          _ResetTimelineItem(
+            event: events[index],
+            isLast: index == events.length - 1,
+          ),
+      ],
+    );
+  }
+}
+
+class _ResetTimelineItem extends StatelessWidget {
+  const _ResetTimelineItem({required this.event, required this.isLast});
+
+  final _ResetEvent event;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final time = event.time?.toLocal();
+    final absoluteTime = time == null
+        ? '时间未知'
+        : DateFormat('M月d日 HH:mm').format(time);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 22,
+          child: Column(
+            children: [
+              Container(
+                width: 18,
+                height: 18,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: event.color.withValues(alpha: 0.12),
+                  border: Border.all(color: event.color.withValues(alpha: 0.5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: event.color.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: event.color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              if (!isLast)
+                Container(
+                  width: 1,
+                  height: 66,
+                  color: event.color.withValues(alpha: 0.25),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: isLast ? 0 : 10),
+            padding: const EdgeInsets.fromLTRB(13, 11, 13, 10),
+            decoration: BoxDecoration(
+              color: event.color.withValues(alpha: 0.045),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: event.color.withValues(alpha: 0.16)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(event.icon, color: event.color, size: 15),
+                    const SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        event.label,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      absoluteTime,
+                      style: TextStyle(
+                        color: event.color.withValues(alpha: 0.92),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 7),
+                ResetCountdown(target: time, prefix: '剩余'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ResetEvent {
+  const _ResetEvent({
+    required this.label,
+    required this.time,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final DateTime? time;
+  final Color color;
+  final IconData icon;
 }
 
 class _ActivityCard extends StatelessWidget {

@@ -2,6 +2,17 @@
 
 此文件从首个正式版本开始记录发布变化。
 
+## [1.2.0] - 2026-07-19
+
+### Added
+
+- 新增与控制台、能量光环两种视觉模式分别匹配的仪表盘骨架屏。
+- 账号详情新增额度重置时间轴，按时间顺序展示 5 小时与周/月额度的本地重置时间和实时倒计时。
+
+### Quality
+
+- 为两种骨架屏和账号重置时间轴增加固定画布视觉回归基准。
+
 ## [1.1.0] - 2026-07-19
 
 ### Changed
@@ -38,3 +49,4 @@
 [1.0.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.0
 [1.0.1]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.1
 [1.1.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.1.0
+[1.2.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.0
