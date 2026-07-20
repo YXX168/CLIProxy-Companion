@@ -111,7 +111,7 @@ Future<void> _render(
   );
 }
 
-Future<void> _renderSkeleton(
+Future<void> _renderSyncOrb(
   WidgetTester tester,
   VisualMode mode,
   String golden,
@@ -183,22 +183,22 @@ void main() {
     );
   });
 
-  testWidgets('matches console skeleton visual baseline', (tester) async {
-    await _renderSkeleton(
+  testWidgets('matches console sync-orb visual baseline', (tester) async {
+    await _renderSyncOrb(
       tester,
       VisualMode.console,
-      'dashboard_console_skeleton',
+      'dashboard_console_sync_orb',
     );
-    expect(find.byKey(const Key('console-skeleton')), findsOneWidget);
+    expect(find.byKey(const Key('console-sync-orb')), findsOneWidget);
   });
 
-  testWidgets('matches energy skeleton visual baseline', (tester) async {
-    await _renderSkeleton(
+  testWidgets('matches energy sync-orb visual baseline', (tester) async {
+    await _renderSyncOrb(
       tester,
       VisualMode.energy,
-      'dashboard_energy_skeleton',
+      'dashboard_energy_sync_orb',
     );
-    expect(find.byKey(const Key('energy-skeleton-grid')), findsOneWidget);
+    expect(find.byKey(const Key('energy-sync-orb')), findsOneWidget);
   });
 
   testWidgets('matches account reset-timeline visual baseline', (tester) async {
