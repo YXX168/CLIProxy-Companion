@@ -111,7 +111,11 @@ Future<void> _render(
   );
 }
 
-Future<void> _renderSyncOrb(WidgetTester tester, VisualMode mode) async {
+Future<void> _renderSyncFlow(
+  WidgetTester tester,
+  VisualMode mode,
+  String golden,
+) async {
   await tester.binding.setSurfaceSize(const Size(420, 960));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
@@ -131,6 +135,10 @@ Future<void> _renderSyncOrb(WidgetTester tester, VisualMode mode) async {
     ),
   );
   await tester.pump(const Duration(milliseconds: 720));
+  await expectLater(
+    find.byType(DashboardScreen),
+    matchesGoldenFile('goldens/$golden.png'),
+  );
 }
 
 Future<void> _renderAccountTimeline(WidgetTester tester) async {
@@ -175,17 +183,25 @@ void main() {
     );
   });
 
-  testWidgets('renders console flowing sync light cluster', (tester) async {
-    await _renderSyncOrb(tester, VisualMode.console);
-    expect(find.byKey(const Key('console-sync-orb')), findsOneWidget);
-    expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);
+  testWidgets('matches console sync-flow visual baseline', (tester) async {
+    await _renderSyncFlow(
+      tester,
+      VisualMode.console,
+      'dashboard_console_sync_flow',
+    );
+    expect(find.byKey(const Key('console-sync-flow')), findsOneWidget);
+    expect(find.byKey(const Key('sync-flow-field')), findsOneWidget);
     expect(find.text('正在同步账户状态'), findsOneWidget);
   });
 
-  testWidgets('renders energy flowing sync light cluster', (tester) async {
-    await _renderSyncOrb(tester, VisualMode.energy);
-    expect(find.byKey(const Key('energy-sync-orb')), findsOneWidget);
-    expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);
+  testWidgets('matches energy sync-flow visual baseline', (tester) async {
+    await _renderSyncFlow(
+      tester,
+      VisualMode.energy,
+      'dashboard_energy_sync_flow',
+    );
+    expect(find.byKey(const Key('energy-sync-flow')), findsOneWidget);
+    expect(find.byKey(const Key('sync-flow-field')), findsOneWidget);
     expect(find.text('建立安全连接  ·  聚合账户能量'), findsOneWidget);
   });
 

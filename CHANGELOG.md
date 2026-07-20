@@ -2,6 +2,18 @@
 
 此文件从首个正式版本开始记录发布变化。
 
+## [1.2.8] - 2026-07-20
+
+### Changed
+
+- 将首次同步光团完全替换为紧凑的双流光信号环与中央信标，移除实体球、大面积雾光、放射线和随机粒子。
+- 控制台模式使用青色与品红信号流，能量模式使用紫色与青色信号流；两段高光沿轨迹反向运行，动画周期收紧至 5.6 秒。
+- 缩小加载视觉占用空间并保留系统“减少动态效果”支持，使启动画面更轻、更有秩序。
+
+### Quality
+
+- 新增控制台与能量模式加载状态的 420 × 960 视觉回归基准。
+
 ## [1.2.7] - 2026-07-20
 
 ### Changed
@@ -117,3 +129,11 @@
 [1.0.1]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.0.1
 [1.1.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.1.0
 [1.2.0]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.0
+[1.2.1]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.1
+[1.2.2]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.2
+[1.2.3]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.3
+[1.2.4]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.4
+[1.2.5]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.5
+[1.2.6]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.6
+[1.2.7]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.7
+[1.2.8]: https://github.com/YXX168/CLIProxy-Companion/releases/tag/v1.2.8

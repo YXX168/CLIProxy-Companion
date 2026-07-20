@@ -13,7 +13,7 @@ import '../widgets/account_card.dart';
 import '../widgets/energy_core.dart';
 import '../widgets/glass_widgets.dart';
 import '../widgets/request_activity.dart';
-import '../widgets/sync_orb_loader.dart';
+import '../widgets/sync_flow_loader.dart';
 import 'account_detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -161,15 +161,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         layoutBuilder: (currentChild, previousChildren) =>
                             Stack(
                               alignment: Alignment.topCenter,
-                              children: [
-                                ...previousChildren,
-                                if (currentChild != null) currentChild,
-                              ],
+                              children: [...previousChildren, ?currentChild],
                             ),
                         transitionBuilder: (child, animation) =>
                             FadeTransition(opacity: animation, child: child),
                         child: _loading
-                            ? SyncOrbLoader(
+                            ? SyncFlowLoader(
                                 key: const ValueKey('loading'),
                                 visualMode: widget.visualMode,
                               )
