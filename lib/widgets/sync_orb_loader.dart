@@ -319,9 +319,11 @@ class _FogSyncPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 3.8 - segment * 0.85
           ..strokeCap = StrokeCap.round
-          ..color = Color.lerp(color, accentColor, segment / 3)!.withValues(
-            alpha: alpha * (1 - segment * 0.18),
-          ),
+          ..color = Color.lerp(
+            color,
+            accentColor,
+            segment / 3,
+          )!.withValues(alpha: alpha * (1 - segment * 0.18)),
       );
     }
 
@@ -336,8 +338,11 @@ class _FogSyncPainter extends CustomPainter {
         point,
         nodeRadius * (0.32 + strength * 0.68),
         Paint()
-          ..color = Color.lerp(color, Colors.white, strength * 0.32)!
-              .withValues(alpha: alpha * strength),
+          ..color = Color.lerp(
+            color,
+            Colors.white,
+            strength * 0.32,
+          )!.withValues(alpha: alpha * strength),
       );
     }
     canvas.restore();
@@ -386,10 +391,7 @@ class _FogSyncPainter extends CustomPainter {
       canvas.save();
       canvas.rotate(turn * (band.isEven ? 1 : -1) + band * 0.72);
       final bandRadius = fogRadius * (0.46 + band * 0.16);
-      final bounds = Rect.fromCircle(
-        center: Offset.zero,
-        radius: bandRadius,
-      );
+      final bounds = Rect.fromCircle(center: Offset.zero, radius: bandRadius);
       final color = Color.lerp(primary, secondary, band / 4)!;
       canvas.drawArc(
         bounds,
@@ -420,10 +422,7 @@ class _FogSyncPainter extends CustomPainter {
       final direction = ribbon.isEven ? 1.0 : -1.0;
       final cycles = 2 + ribbon % 3;
       final ribbonRadius = radius * (0.7 + ribbon * 0.11);
-      final bounds = Rect.fromCircle(
-        center: Offset.zero,
-        radius: ribbonRadius,
-      );
+      final bounds = Rect.fromCircle(center: Offset.zero, radius: ribbonRadius);
       canvas.drawArc(
         bounds,
         turn * cycles * direction + ribbon * 1.02,
@@ -433,9 +432,11 @@ class _FogSyncPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
           ..strokeWidth = 3.2 - ribbon * 0.24
-          ..color = Color.lerp(primary, accent, ribbon / 7)!.withValues(
-            alpha: 0.56 - ribbon * 0.055,
-          ),
+          ..color = Color.lerp(
+            primary,
+            accent,
+            ribbon / 7,
+          )!.withValues(alpha: 0.56 - ribbon * 0.055),
       );
     }
     canvas.restore();
@@ -482,9 +483,7 @@ class _FogSyncPainter extends CustomPainter {
         ..shader = RadialGradient(
           colors: colors,
           stops: stops,
-        ).createShader(
-          Rect.fromCircle(center: Offset.zero, radius: radius),
-        ),
+        ).createShader(Rect.fromCircle(center: Offset.zero, radius: radius)),
     );
     canvas.restore();
   }
