@@ -175,14 +175,14 @@ void main() {
     );
   });
 
-  testWidgets('renders console high-velocity sync orb', (tester) async {
+  testWidgets('renders console flowing sync light cluster', (tester) async {
     await _renderSyncOrb(tester, VisualMode.console);
     expect(find.byKey(const Key('console-sync-orb')), findsOneWidget);
     expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);
-    expect(find.text('正在极速同步'), findsOneWidget);
+    expect(find.text('正在同步账户状态'), findsOneWidget);
   });
 
-  testWidgets('renders energy high-velocity sync orb', (tester) async {
+  testWidgets('renders energy flowing sync light cluster', (tester) async {
     await _renderSyncOrb(tester, VisualMode.energy);
     expect(find.byKey(const Key('energy-sync-orb')), findsOneWidget);
     expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);

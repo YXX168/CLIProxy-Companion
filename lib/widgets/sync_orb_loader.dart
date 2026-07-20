@@ -3,9 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../models/visual_mode.dart';
-import '../theme/app_theme.dart';
 
-/// A high-velocity first-sync scene inspired by Pulsar's soft light clusters.
+/// A flowing first-sync scene inspired by Pulsar's soft light clusters.
 ///
 /// The animation is driven directly by vsync, so high-refresh displays can
 /// paint at their native cadence. Only the two CustomPainters repaint.
@@ -56,21 +55,25 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
   @override
   Widget build(BuildContext context) {
     final energyMode = widget.visualMode == VisualMode.energy;
-    final primary = energyMode ? AppTheme.violet : AppTheme.cyan;
-    final secondary = energyMode ? AppTheme.cyan : AppTheme.magenta;
+    final primary = energyMode
+        ? const Color(0xFFA98CFF)
+        : const Color(0xFF72ECF8);
+    final secondary = energyMode
+        ? const Color(0xFF5DE2F4)
+        : const Color(0xFF6D86FF);
 
     return Semantics(
       liveRegion: true,
-      label: '正在极速同步账户状态，请稍候',
+      label: '正在同步账户状态，请稍候',
       child: SizedBox(
         key: Key(energyMode ? 'energy-sync-orb' : 'console-sync-orb'),
-        height: 500,
+        height: 535,
         child: Column(
           children: [
             SizedBox(
               key: const Key('sync-energy-field'),
               width: double.infinity,
-              height: 382,
+              height: 420,
               child: RepaintBoundary(
                 child: CustomPaint(
                   painter: _HyperSyncPainter(
@@ -86,7 +89,7 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
               child: Column(
                 children: [
                   Text(
-                    '正在极速同步',
+                    '正在同步账户状态',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontSize: 18,
@@ -172,7 +175,7 @@ class _HyperSyncPainter extends CustomPainter {
     final phase = animation.value;
     final turn = phase * math.pi * 2;
     final scale = (size.width / 390).clamp(0.78, 1.12);
-    final center = Offset(size.width / 2, size.height * 0.5);
+    final center = Offset(size.width / 2, size.height * 0.6);
     final coreRadius = 76.0 * scale;
     final breath = 1 + math.sin(turn * 2) * 0.035;
 
@@ -184,50 +187,50 @@ class _HyperSyncPainter extends CustomPainter {
     _drawOrbit(
       canvas,
       center,
-      motion: turn * 8,
+      motion: turn * 3,
       width: 350 * scale,
       height: 132 * scale,
       tilt: -0.24,
       color: primary,
       accent: secondary,
       alpha: 0.78,
-      nodeRadius: 3.2 * scale,
+      nodeRadius: 4.5 * scale,
     );
     _drawOrbit(
       canvas,
       center,
-      motion: -turn * 11 + 1.7,
+      motion: -turn * 4 + 1.7,
       width: 270 * scale,
       height: 226 * scale,
       tilt: 0.72,
       color: secondary,
       accent: primary,
       alpha: 0.55,
-      nodeRadius: 2.5 * scale,
+      nodeRadius: 3.6 * scale,
     );
     _drawOrbit(
       canvas,
       center,
-      motion: turn * 6 + 3.1,
+      motion: turn * 2 + 3.1,
       width: 250 * scale,
       height: 98 * scale,
       tilt: 0.28,
       color: primary,
       accent: Colors.white,
       alpha: 0.46,
-      nodeRadius: 1.9 * scale,
+      nodeRadius: 2.8 * scale,
     );
     _drawOrbit(
       canvas,
       center,
-      motion: -turn * 5 + 4.2,
+      motion: -turn * 2 + 4.2,
       width: 338 * scale,
       height: 205 * scale,
       tilt: -0.64,
       color: secondary,
       accent: primary,
       alpha: 0.3,
-      nodeRadius: 1.5 * scale,
+      nodeRadius: 2.2 * scale,
     );
 
     _drawCore(canvas, center, coreRadius, turn, breath);
@@ -318,9 +321,9 @@ class _HyperSyncPainter extends CustomPainter {
     final tailPaint = Paint()..strokeCap = StrokeCap.round;
     final particlePaint = Paint();
 
-    for (var index = 0; index < 64; index++) {
+    for (var index = 0; index < 58; index++) {
       final direction = index.isEven ? 1.0 : -1.0;
-      final speed = 5 + index % 5 * 2;
+      final speed = 2 + index % 4;
       final angle = turn * speed * direction + index * 2.399963;
       final particleRadius = radius * (1.3 + (index % 17) * 0.071);
       final flattening = 0.36 + (index % 4) * 0.055;
@@ -328,7 +331,7 @@ class _HyperSyncPainter extends CustomPainter {
         math.cos(angle) * particleRadius,
         math.sin(angle) * particleRadius * flattening,
       );
-      final tailAngle = angle - direction * (0.045 + index % 3 * 0.018);
+      final tailAngle = angle - direction * (0.085 + index % 3 * 0.026);
       final tail = Offset(
         math.cos(tailAngle) * particleRadius,
         math.sin(tailAngle) * particleRadius * flattening,
@@ -341,16 +344,16 @@ class _HyperSyncPainter extends CustomPainter {
           : primary;
 
       tailPaint
-        ..strokeWidth = 0.55 + depth * 1.05
-        ..color = color.withValues(alpha: 0.13 + depth * 0.56);
+        ..strokeWidth = 0.9 + depth * 1.8
+        ..color = color.withValues(alpha: 0.14 + depth * 0.62);
       canvas.drawLine(tail, point, tailPaint);
-      particlePaint.color = color.withValues(alpha: 0.3 + depth * 0.68);
-      canvas.drawCircle(point, 0.55 + depth * 1.45, particlePaint);
+      particlePaint.color = color.withValues(alpha: 0.34 + depth * 0.64);
+      canvas.drawCircle(point, 0.95 + depth * 2.2, particlePaint);
 
       if (index % 13 == 0) {
         canvas.drawCircle(
           point,
-          4.2,
+          5.5,
           Paint()
             ..color = color.withValues(alpha: 0.2)
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
@@ -384,44 +387,60 @@ class _HyperSyncPainter extends CustomPainter {
       bounds,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.05
+        ..strokeWidth = 0.8
         ..shader = SweepGradient(
           transform: GradientRotation(motion * 0.31),
           colors: [
             Colors.transparent,
-            color.withValues(alpha: alpha * 0.72),
-            accent.withValues(alpha: alpha),
+            color.withValues(alpha: alpha * 0.28),
+            accent.withValues(alpha: alpha * 0.38),
             Colors.transparent,
           ],
           stops: const [0, 0.28, 0.68, 1],
         ).createShader(bounds),
     );
 
-    for (var segment = 0; segment < 4; segment++) {
+    for (var segment = 0; segment < 5; segment++) {
+      final start = motion + segment * 1.255;
+      final sweep = 0.34 + segment * 0.065;
+      if (segment < 2) {
+        canvas.drawArc(
+          bounds,
+          start,
+          sweep,
+          false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = segment == 0 ? 8.5 : 5.5
+            ..strokeCap = StrokeCap.round
+            ..color = color.withValues(alpha: alpha * 0.16)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+      }
       canvas.drawArc(
         bounds,
-        motion + segment * 1.57,
-        0.2 + segment * 0.045,
+        start,
+        sweep,
         false,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = segment == 0 ? 2.65 : 1.25
+          ..strokeWidth = segment == 0 ? 4.4 : 2.2
           ..strokeCap = StrokeCap.round
           ..color = Color.lerp(
             color,
             accent,
-            segment / 4,
-          )!.withValues(alpha: alpha * (1 - segment * 0.14)),
+            segment / 5,
+          )!.withValues(alpha: alpha * (1 - segment * 0.11)),
       );
     }
 
-    for (var trail = 8; trail >= 0; trail--) {
-      final trailAngle = motion - trail * 0.034;
+    for (var trail = 10; trail >= 0; trail--) {
+      final trailAngle = motion - trail * 0.052;
       final point = Offset(
         math.cos(trailAngle) * width / 2,
         math.sin(trailAngle) * height / 2,
       );
-      final strength = 1 - trail / 9;
+      final strength = 1 - trail / 11;
       canvas.drawCircle(
         point,
         nodeRadius * (0.25 + strength * 0.75),
@@ -444,61 +463,62 @@ class _HyperSyncPainter extends CustomPainter {
     double breath,
   ) {
     final core = radius * breath;
-    canvas.drawCircle(
-      center,
-      core * 1.16,
-      Paint()
-        ..color = primary.withValues(alpha: 0.34)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 25),
-    );
     _drawSoftCircle(
       canvas,
       center,
-      core * 1.16,
+      core * 1.58,
       [
-        Colors.white.withValues(alpha: 0.96),
-        primary.withValues(alpha: 0.94),
-        secondary.withValues(alpha: 0.52),
-        primary.withValues(alpha: 0.08),
-        Colors.transparent,
-      ],
-      const [0, 0.14, 0.46, 0.78, 1],
-      gradientCenter: const Alignment(-0.3, -0.34),
-    );
-
-    final mistA =
-        center +
-        Offset(
-          math.cos(turn * 3) * core * 0.26,
-          math.sin(turn * 4) * core * 0.2,
-        );
-    _drawSoftCircle(
-      canvas,
-      mistA,
-      core * 0.72,
-      [
-        Colors.white.withValues(alpha: 0.34),
-        primary.withValues(alpha: 0.2),
-        Colors.transparent,
-      ],
-      const [0, 0.48, 1],
-    );
-    final mistB =
-        center +
-        Offset(
-          math.sin(turn * 5 + 1.2) * core * 0.29,
-          math.cos(turn * 3 + 0.8) * core * 0.23,
-        );
-    _drawSoftCircle(
-      canvas,
-      mistB,
-      core * 0.62,
-      [
-        secondary.withValues(alpha: 0.4),
-        secondary.withValues(alpha: 0.12),
+        primary.withValues(alpha: 0.22),
+        secondary.withValues(alpha: 0.13),
         Colors.transparent,
       ],
       const [0, 0.5, 1],
+    );
+    _drawSoftCircle(
+      canvas,
+      center + Offset(-core * 0.1, -core * 0.08),
+      core * 1.12,
+      [
+        Colors.white.withValues(alpha: 0.5),
+        primary.withValues(alpha: 0.4),
+        secondary.withValues(alpha: 0.2),
+        Colors.transparent,
+      ],
+      const [0, 0.2, 0.56, 1],
+      gradientCenter: const Alignment(-0.26, -0.24),
+    );
+
+    for (var lobe = 0; lobe < 5; lobe++) {
+      final direction = lobe.isEven ? 1.0 : -1.0;
+      final angle = turn * direction + lobe * 1.31;
+      final drift = Offset(
+        math.cos(angle) * core * (0.18 + lobe * 0.025),
+        math.sin(angle * 1.17) * core * (0.14 + lobe * 0.018),
+      );
+      final color = lobe.isEven ? primary : secondary;
+      _drawSoftCircle(
+        canvas,
+        center + drift,
+        core * (0.54 + lobe * 0.045),
+        [
+          color.withValues(alpha: 0.38 - lobe * 0.035),
+          color.withValues(alpha: 0.14),
+          Colors.transparent,
+        ],
+        const [0, 0.5, 1],
+      );
+    }
+
+    _drawSoftCircle(
+      canvas,
+      center + Offset(core * 0.04, -core * 0.06),
+      core * 0.5,
+      [
+        Colors.white.withValues(alpha: 0.48),
+        primary.withValues(alpha: 0.24),
+        Colors.transparent,
+      ],
+      const [0, 0.36, 1],
     );
   }
 
@@ -510,24 +530,41 @@ class _HyperSyncPainter extends CustomPainter {
   ) {
     canvas.save();
     canvas.translate(center.dx, center.dy);
-    for (var stream = 0; stream < 8; stream++) {
-      final streamRadius = radius * (0.3 + stream * 0.09);
+    for (var stream = 0; stream < 9; stream++) {
+      final streamRadius = radius * (0.32 + stream * 0.105);
       final bounds = Rect.fromCircle(center: Offset.zero, radius: streamRadius);
       final direction = stream.isEven ? 1.0 : -1.0;
+      final start =
+          turn * (3 + stream % 3) * direction + stream * 0.86;
+      final sweep = 0.7 + stream * 0.075;
+      if (stream % 3 == 0) {
+        canvas.drawArc(
+          bounds,
+          start,
+          sweep,
+          false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeWidth = 7.5 - stream * 0.28
+            ..color = primary.withValues(alpha: 0.13)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+      }
       canvas.drawArc(
         bounds,
-        turn * (12 - stream * 0.6) * direction + stream * 0.86,
-        0.52 + stream * 0.07,
+        start,
+        sweep,
         false,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
-          ..strokeWidth = 2.25 - stream * 0.13
+          ..strokeWidth = 3.6 - stream * 0.16
           ..color = Color.lerp(
             primary,
             secondary,
             stream / 9,
-          )!.withValues(alpha: 0.84 - stream * 0.07),
+          )!.withValues(alpha: 0.86 - stream * 0.055),
       );
     }
     canvas.restore();
@@ -560,13 +597,14 @@ class _HyperSyncPainter extends CustomPainter {
     );
 
     for (var index = 0; index < 6; index++) {
-      final angle = turn * (9 + index) * (index.isEven ? 1 : -1) + index;
+      final angle =
+          turn * (3 + index % 3) * (index.isEven ? 1 : -1) + index;
       final distance = radius * (1.02 + index * 0.13);
       final point =
           center + Offset(math.cos(angle), math.sin(angle)) * distance;
       canvas.drawCircle(
         point,
-        index == 0 ? 2.8 : 1.25,
+        index == 0 ? 4.2 : 2.2,
         Paint()
           ..color = (index.isEven ? Colors.white : secondary).withValues(
             alpha: 0.82,
@@ -627,7 +665,7 @@ class _VelocityIndicatorPainter extends CustomPainter {
     );
 
     for (var streak = 0; streak < 3; streak++) {
-      final progress = (phase * 18 + streak * 0.34) % 1;
+      final progress = (phase * 5 + streak * 0.34) % 1;
       final x = progress * size.width;
       final length = 22.0 + streak * 9;
       final rect = Rect.fromLTWH(x - length, centerY - 1.25, length, 2.5);
@@ -646,7 +684,7 @@ class _VelocityIndicatorPainter extends CustomPainter {
 
     for (var index = 0; index < 7; index++) {
       final wave =
-          (math.sin((phase * 18 - index * 0.16) * math.pi * 2) + 1) / 2;
+          (math.sin((phase * 5 - index * 0.16) * math.pi * 2) + 1) / 2;
       final x = size.width / 2 - 27 + index * 9;
       canvas.drawCircle(
         Offset(x, centerY),
