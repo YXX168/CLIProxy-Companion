@@ -264,9 +264,11 @@ class _FogSyncPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.4
         ..strokeCap = StrokeCap.round
-        ..color = Color.lerp(color, Colors.white, 0.16)!.withValues(
-          alpha: alpha,
-        )
+        ..color = Color.lerp(
+          color,
+          Colors.white,
+          0.16,
+        )!.withValues(alpha: alpha)
         ..blendMode = BlendMode.plus,
     );
     canvas.restore();

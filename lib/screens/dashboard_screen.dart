@@ -166,10 +166,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (currentChild != null) currentChild,
                               ],
                             ),
-                        transitionBuilder: (child, animation) => FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
+                        transitionBuilder: (child, animation) =>
+                            FadeTransition(opacity: animation, child: child),
                         child: _loading
                             ? SyncOrbLoader(
                                 key: const ValueKey('loading'),
