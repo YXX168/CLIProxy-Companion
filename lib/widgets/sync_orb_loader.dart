@@ -238,8 +238,7 @@ class _HyperSyncPainter extends CustomPainter {
   void _drawStarField(Canvas canvas, Size size, double turn) {
     for (var index = 0; index < _stars.length; index++) {
       final star = _stars[index];
-      final twinkle =
-          (math.sin(turn * (2 + index % 3) + index * 1.71) + 1) / 2;
+      final twinkle = (math.sin(turn * (2 + index % 3) + index * 1.71) + 1) / 2;
       canvas.drawCircle(
         Offset(star.dx * size.width, star.dy * size.height),
         0.45 + twinkle * (index % 5 == 0 ? 1.1 : 0.55),
@@ -408,9 +407,11 @@ class _HyperSyncPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = segment == 0 ? 2.65 : 1.25
           ..strokeCap = StrokeCap.round
-          ..color = Color.lerp(color, accent, segment / 4)!.withValues(
-            alpha: alpha * (1 - segment * 0.14),
-          ),
+          ..color = Color.lerp(
+            color,
+            accent,
+            segment / 4,
+          )!.withValues(alpha: alpha * (1 - segment * 0.14)),
       );
     }
 
@@ -425,8 +426,11 @@ class _HyperSyncPainter extends CustomPainter {
         point,
         nodeRadius * (0.25 + strength * 0.75),
         Paint()
-          ..color = Color.lerp(color, Colors.white, strength * 0.45)!
-              .withValues(alpha: alpha * strength),
+          ..color = Color.lerp(
+            color,
+            Colors.white,
+            strength * 0.45,
+          )!.withValues(alpha: alpha * strength),
       );
     }
     canvas.restore();
@@ -508,10 +512,7 @@ class _HyperSyncPainter extends CustomPainter {
     canvas.translate(center.dx, center.dy);
     for (var stream = 0; stream < 8; stream++) {
       final streamRadius = radius * (0.3 + stream * 0.09);
-      final bounds = Rect.fromCircle(
-        center: Offset.zero,
-        radius: streamRadius,
-      );
+      final bounds = Rect.fromCircle(center: Offset.zero, radius: streamRadius);
       final direction = stream.isEven ? 1.0 : -1.0;
       canvas.drawArc(
         bounds,
@@ -522,9 +523,11 @@ class _HyperSyncPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
           ..strokeWidth = 2.25 - stream * 0.13
-          ..color = Color.lerp(primary, secondary, stream / 9)!.withValues(
-            alpha: 0.84 - stream * 0.07,
-          ),
+          ..color = Color.lerp(
+            primary,
+            secondary,
+            stream / 9,
+          )!.withValues(alpha: 0.84 - stream * 0.07),
       );
     }
     canvas.restore();

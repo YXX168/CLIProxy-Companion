@@ -111,10 +111,7 @@ Future<void> _render(
   );
 }
 
-Future<void> _renderSyncOrb(
-  WidgetTester tester,
-  VisualMode mode,
-) async {
+Future<void> _renderSyncOrb(WidgetTester tester, VisualMode mode) async {
   await tester.binding.setSurfaceSize(const Size(420, 960));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
