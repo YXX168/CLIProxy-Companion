@@ -534,8 +534,7 @@ class _HyperSyncPainter extends CustomPainter {
       final streamRadius = radius * (0.32 + stream * 0.105);
       final bounds = Rect.fromCircle(center: Offset.zero, radius: streamRadius);
       final direction = stream.isEven ? 1.0 : -1.0;
-      final start =
-          turn * (3 + stream % 3) * direction + stream * 0.86;
+      final start = turn * (3 + stream % 3) * direction + stream * 0.86;
       final sweep = 0.7 + stream * 0.075;
       if (stream % 3 == 0) {
         canvas.drawArc(
@@ -597,8 +596,7 @@ class _HyperSyncPainter extends CustomPainter {
     );
 
     for (var index = 0; index < 6; index++) {
-      final angle =
-          turn * (3 + index % 3) * (index.isEven ? 1 : -1) + index;
+      final angle = turn * (3 + index % 3) * (index.isEven ? 1 : -1) + index;
       final distance = radius * (1.02 + index * 0.13);
       final point =
           center + Offset(math.cos(angle), math.sin(angle)) * distance;
@@ -683,8 +681,7 @@ class _VelocityIndicatorPainter extends CustomPainter {
     }
 
     for (var index = 0; index < 7; index++) {
-      final wave =
-          (math.sin((phase * 5 - index * 0.16) * math.pi * 2) + 1) / 2;
+      final wave = (math.sin((phase * 5 - index * 0.16) * math.pi * 2) + 1) / 2;
       final x = size.width / 2 - 27 + index * 9;
       canvas.drawCircle(
         Offset(x, centerY),
