@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../models/visual_mode.dart';
+import '../theme/app_theme.dart';
 
 /// A restrained first-sync scene built from fog, light ribbons and orbits.
 ///
@@ -55,15 +56,9 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
   @override
   Widget build(BuildContext context) {
     final energyMode = widget.visualMode == VisualMode.energy;
-    final primary = energyMode
-        ? const Color(0xFFD2CBF5)
-        : const Color(0xFFB4EFF4);
-    final secondary = energyMode
-        ? const Color(0xFF82B9E2)
-        : const Color(0xFF72B5DF);
-    final accent = energyMode
-        ? const Color(0xFF8494D7)
-        : const Color(0xFF6388CB);
+    final primary = energyMode ? AppTheme.violet : AppTheme.cyan;
+    final secondary = energyMode ? AppTheme.cyan : AppTheme.violet;
+    const accent = AppTheme.magenta;
 
     return Semantics(
       liveRegion: true,
@@ -101,8 +96,8 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
                       letterSpacing: 1.1,
                       shadows: [
                         Shadow(
-                          color: secondary.withValues(alpha: 0.34),
-                          blurRadius: 18,
+                          color: primary.withValues(alpha: 0.52),
+                          blurRadius: 20,
                         ),
                       ],
                     ),
@@ -186,7 +181,7 @@ class _FogSyncPainter extends CustomPainter {
       tilt: -0.2,
       color: primary,
       accentColor: secondary,
-      alpha: 0.66,
+      alpha: 0.84,
       nodeRadius: 3.8 * scale,
     );
     _drawOrbit(
@@ -198,7 +193,7 @@ class _FogSyncPainter extends CustomPainter {
       tilt: 0.68,
       color: secondary,
       accentColor: primary,
-      alpha: 0.44,
+      alpha: 0.64,
       nodeRadius: 3 * scale,
     );
     _drawOrbit(
@@ -210,7 +205,7 @@ class _FogSyncPainter extends CustomPainter {
       tilt: 0.27,
       color: accent,
       accentColor: primary,
-      alpha: 0.4,
+      alpha: 0.56,
       nodeRadius: 2.4 * scale,
     );
 
@@ -228,7 +223,7 @@ class _FogSyncPainter extends CustomPainter {
         0.55 + twinkle * 0.55,
         Paint()
           ..color = (index.isEven ? secondary : primary).withValues(
-            alpha: 0.08 + twinkle * 0.24,
+            alpha: 0.16 + twinkle * 0.48,
           ),
       );
     }
@@ -247,11 +242,12 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.18,
       yScale: 0.82,
       colors: [
-        secondary.withValues(alpha: 0.11),
-        accent.withValues(alpha: 0.055),
+        primary.withValues(alpha: 0.22),
+        secondary.withValues(alpha: 0.14),
+        accent.withValues(alpha: 0.07),
         Colors.transparent,
       ],
-      stops: const [0, 0.5, 1],
+      stops: const [0, 0.38, 0.68, 1],
     );
   }
 
@@ -285,8 +281,8 @@ class _FogSyncPainter extends CustomPainter {
           transform: GradientRotation(motion * 0.18),
           colors: [
             Colors.transparent,
-            color.withValues(alpha: alpha * 0.18),
-            accentColor.withValues(alpha: alpha * 0.24),
+            color.withValues(alpha: alpha * 0.32),
+            accentColor.withValues(alpha: alpha * 0.42),
             Colors.transparent,
           ],
           stops: const [0, 0.28, 0.68, 1],
@@ -306,7 +302,7 @@ class _FogSyncPainter extends CustomPainter {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 9
             ..strokeCap = StrokeCap.round
-            ..color = color.withValues(alpha: alpha * 0.12)
+            ..color = color.withValues(alpha: alpha * 0.2)
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
         );
       }
@@ -363,26 +359,39 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.08,
       yScale: 0.92,
       colors: [
-        primary.withValues(alpha: 0.24),
-        secondary.withValues(alpha: 0.13),
-        accent.withValues(alpha: 0.045),
+        primary.withValues(alpha: 0.46),
+        secondary.withValues(alpha: 0.28),
+        accent.withValues(alpha: 0.1),
         Colors.transparent,
       ],
       stops: const [0, 0.38, 0.7, 1],
     );
     _drawSoftEllipse(
       canvas,
-      center + Offset(-fogRadius * 0.06, -fogRadius * 0.05),
-      fogRadius * 1.08,
-      xScale: 1.14,
-      yScale: 0.86,
+      center,
+      fogRadius * 1.18,
+      xScale: 1.12,
+      yScale: 0.88,
       colors: [
-        const Color(0xFFEAF8FF).withValues(alpha: 0.3),
-        primary.withValues(alpha: 0.2),
-        secondary.withValues(alpha: 0.08),
+        Colors.white.withValues(alpha: 0.28),
+        primary.withValues(alpha: 0.68),
+        primary.withValues(alpha: 0.16),
         Colors.transparent,
       ],
-      stops: const [0, 0.32, 0.68, 1],
+      stops: const [0, 0.27, 0.64, 1],
+    );
+    _drawSoftEllipse(
+      canvas,
+      center + Offset(fogRadius * 0.1, fogRadius * 0.03),
+      fogRadius,
+      xScale: 1.2,
+      yScale: 0.78,
+      colors: [
+        secondary.withValues(alpha: 0.34),
+        accent.withValues(alpha: 0.12),
+        Colors.transparent,
+      ],
+      stops: const [0, 0.52, 1],
     );
 
     canvas.save();
@@ -402,7 +411,7 @@ class _FogSyncPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
           ..strokeWidth = 18 - band * 2.7
-          ..color = color.withValues(alpha: 0.09 + band * 0.012)
+          ..color = color.withValues(alpha: 0.17 + band * 0.018)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 11),
       );
       canvas.restore();
@@ -436,7 +445,7 @@ class _FogSyncPainter extends CustomPainter {
             primary,
             accent,
             ribbon / 7,
-          )!.withValues(alpha: 0.56 - ribbon * 0.055),
+          )!.withValues(alpha: 0.78 - ribbon * 0.06),
       );
     }
     canvas.restore();
@@ -454,9 +463,9 @@ class _FogSyncPainter extends CustomPainter {
         ..shader = LinearGradient(
           colors: [
             Colors.transparent,
-            secondary.withValues(alpha: 0.08),
-            primary.withValues(alpha: 0.32),
-            secondary.withValues(alpha: 0.08),
+            secondary.withValues(alpha: 0.16),
+            primary.withValues(alpha: 0.68),
+            secondary.withValues(alpha: 0.16),
             Colors.transparent,
           ],
           stops: const [0, 0.28, 0.5, 0.72, 1],
@@ -523,7 +532,7 @@ class _BreathingActivityPainter extends CustomPainter {
       Paint()
         ..strokeWidth = 6
         ..strokeCap = StrokeCap.round
-        ..color = secondary.withValues(alpha: 0.1 + pulse * 0.1)
+        ..color = secondary.withValues(alpha: 0.16 + pulse * 0.18)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
     final lineRect = Rect.fromPoints(start, end).inflate(1);
@@ -536,9 +545,9 @@ class _BreathingActivityPainter extends CustomPainter {
         ..shader = LinearGradient(
           colors: [
             Colors.transparent,
-            secondary.withValues(alpha: 0.4),
-            primary.withValues(alpha: 0.86),
-            secondary.withValues(alpha: 0.4),
+            secondary.withValues(alpha: 0.62),
+            primary.withValues(alpha: 0.96),
+            secondary.withValues(alpha: 0.62),
             Colors.transparent,
           ],
           stops: const [0, 0.25, 0.5, 0.75, 1],
