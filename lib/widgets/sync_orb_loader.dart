@@ -58,7 +58,6 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
     final energyMode = widget.visualMode == VisualMode.energy;
     final primary = energyMode ? AppTheme.violet : AppTheme.cyan;
     final secondary = energyMode ? AppTheme.cyan : AppTheme.violet;
-    const accent = AppTheme.magenta;
 
     return Semantics(
       liveRegion: true,
@@ -78,7 +77,6 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
                     animation: _controller,
                     primary: primary,
                     secondary: secondary,
-                    accent: accent,
                   ),
                 ),
               ),
@@ -141,24 +139,11 @@ class _FogSyncPainter extends CustomPainter {
     required this.animation,
     required this.primary,
     required this.secondary,
-    required this.accent,
   }) : super(repaint: animation);
 
   final Animation<double> animation;
   final Color primary;
   final Color secondary;
-  final Color accent;
-
-  static const _stars = <Offset>[
-    Offset(0.09, 0.28),
-    Offset(0.18, 0.58),
-    Offset(0.29, 0.18),
-    Offset(0.38, 0.72),
-    Offset(0.65, 0.2),
-    Offset(0.75, 0.69),
-    Offset(0.86, 0.34),
-    Offset(0.93, 0.57),
-  ];
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -169,7 +154,6 @@ class _FogSyncPainter extends CustomPainter {
     final radius = 78.0 * scale;
     final breath = 1 + math.sin(turn * 4) * 0.025;
 
-    _drawSparseField(canvas, size, turn);
     _drawAmbientFog(canvas, center, radius, breath);
 
     _drawOrbit(
@@ -181,8 +165,7 @@ class _FogSyncPainter extends CustomPainter {
       tilt: -0.2,
       color: primary,
       accentColor: secondary,
-      alpha: 0.84,
-      nodeRadius: 3.8 * scale,
+      alpha: 0.92,
     );
     _drawOrbit(
       canvas,
@@ -193,40 +176,11 @@ class _FogSyncPainter extends CustomPainter {
       tilt: 0.68,
       color: secondary,
       accentColor: primary,
-      alpha: 0.64,
-      nodeRadius: 3 * scale,
-    );
-    _drawOrbit(
-      canvas,
-      center,
-      motion: turn * 3 + 3.1,
-      width: 286 * scale,
-      height: 108 * scale,
-      tilt: 0.27,
-      color: accent,
-      accentColor: primary,
-      alpha: 0.56,
-      nodeRadius: 2.4 * scale,
+      alpha: 0.7,
     );
 
     _drawFogCluster(canvas, center, radius, turn, breath);
-    _drawEnergyRibbons(canvas, center, radius, turn);
     _drawLensHaze(canvas, center, radius);
-  }
-
-  void _drawSparseField(Canvas canvas, Size size, double turn) {
-    for (var index = 0; index < _stars.length; index++) {
-      final twinkle = (math.sin(turn * 2 + index * 1.83) + 1) / 2;
-      final star = _stars[index];
-      canvas.drawCircle(
-        Offset(star.dx * size.width, star.dy * size.height),
-        0.55 + twinkle * 0.55,
-        Paint()
-          ..color = (index.isEven ? secondary : primary).withValues(
-            alpha: 0.16 + twinkle * 0.48,
-          ),
-      );
-    }
   }
 
   void _drawAmbientFog(
@@ -242,12 +196,11 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.18,
       yScale: 0.82,
       colors: [
-        primary.withValues(alpha: 0.22),
-        secondary.withValues(alpha: 0.14),
-        accent.withValues(alpha: 0.07),
+        primary.withValues(alpha: 0.34),
+        secondary.withValues(alpha: 0.2),
         Colors.transparent,
       ],
-      stops: const [0, 0.38, 0.68, 1],
+      stops: const [0, 0.52, 1],
     );
   }
 
@@ -261,7 +214,6 @@ class _FogSyncPainter extends CustomPainter {
     required Color color,
     required Color accentColor,
     required double alpha,
-    required double nodeRadius,
   }) {
     canvas.save();
     canvas.translate(center.dx, center.dy);
@@ -281,66 +233,42 @@ class _FogSyncPainter extends CustomPainter {
           transform: GradientRotation(motion * 0.18),
           colors: [
             Colors.transparent,
-            color.withValues(alpha: alpha * 0.32),
-            accentColor.withValues(alpha: alpha * 0.42),
+            color.withValues(alpha: alpha * 0.24),
+            accentColor.withValues(alpha: alpha * 0.32),
             Colors.transparent,
           ],
           stops: const [0, 0.28, 0.68, 1],
         ).createShader(bounds),
     );
 
-    for (var segment = 0; segment < 3; segment++) {
-      final start = motion + segment * 2.094;
-      final sweep = 0.48 - segment * 0.08;
-      if (segment == 0) {
-        canvas.drawArc(
-          bounds,
-          start,
-          sweep,
-          false,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 9
-            ..strokeCap = StrokeCap.round
-            ..color = color.withValues(alpha: alpha * 0.2)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-        );
-      }
-      canvas.drawArc(
-        bounds,
-        start,
-        sweep,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3.8 - segment * 0.85
-          ..strokeCap = StrokeCap.round
-          ..color = Color.lerp(
-            color,
-            accentColor,
-            segment / 3,
-          )!.withValues(alpha: alpha * (1 - segment * 0.18)),
-      );
-    }
-
-    for (var trail = 5; trail >= 0; trail--) {
-      final trailAngle = motion - trail * 0.05;
-      final point = Offset(
-        math.cos(trailAngle) * width / 2,
-        math.sin(trailAngle) * height / 2,
-      );
-      final strength = 1 - trail / 6;
-      canvas.drawCircle(
-        point,
-        nodeRadius * (0.32 + strength * 0.68),
-        Paint()
-          ..color = Color.lerp(
-            color,
-            Colors.white,
-            strength * 0.32,
-          )!.withValues(alpha: alpha * strength),
-      );
-    }
+    const sweep = 0.82;
+    canvas.drawArc(
+      bounds,
+      motion,
+      sweep,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 13
+        ..strokeCap = StrokeCap.round
+        ..color = color.withValues(alpha: alpha * 0.22)
+        ..blendMode = BlendMode.plus
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7),
+    );
+    canvas.drawArc(
+      bounds,
+      motion,
+      sweep,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.4
+        ..strokeCap = StrokeCap.round
+        ..color = Color.lerp(color, Colors.white, 0.16)!.withValues(
+          alpha: alpha,
+        )
+        ..blendMode = BlendMode.plus,
+    );
     canvas.restore();
   }
 
@@ -359,12 +287,11 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.08,
       yScale: 0.92,
       colors: [
-        primary.withValues(alpha: 0.46),
-        secondary.withValues(alpha: 0.28),
-        accent.withValues(alpha: 0.1),
+        primary.withValues(alpha: 0.58),
+        secondary.withValues(alpha: 0.34),
         Colors.transparent,
       ],
-      stops: const [0, 0.38, 0.7, 1],
+      stops: const [0, 0.48, 1],
     );
     _drawSoftEllipse(
       canvas,
@@ -373,9 +300,9 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.12,
       yScale: 0.88,
       colors: [
-        Colors.white.withValues(alpha: 0.28),
-        primary.withValues(alpha: 0.68),
-        primary.withValues(alpha: 0.16),
+        Colors.white.withValues(alpha: 0.34),
+        primary.withValues(alpha: 0.82),
+        primary.withValues(alpha: 0.22),
         Colors.transparent,
       ],
       stops: const [0, 0.27, 0.64, 1],
@@ -387,8 +314,8 @@ class _FogSyncPainter extends CustomPainter {
       xScale: 1.2,
       yScale: 0.78,
       colors: [
-        secondary.withValues(alpha: 0.34),
-        accent.withValues(alpha: 0.12),
+        secondary.withValues(alpha: 0.42),
+        primary.withValues(alpha: 0.12),
         Colors.transparent,
       ],
       stops: const [0, 0.52, 1],
@@ -396,57 +323,26 @@ class _FogSyncPainter extends CustomPainter {
 
     canvas.save();
     canvas.translate(center.dx, center.dy);
-    for (var band = 0; band < 4; band++) {
+    for (var band = 0; band < 2; band++) {
       canvas.save();
       canvas.rotate(turn * (band.isEven ? 1 : -1) + band * 0.72);
-      final bandRadius = fogRadius * (0.46 + band * 0.16);
+      final bandRadius = fogRadius * (0.54 + band * 0.22);
       final bounds = Rect.fromCircle(center: Offset.zero, radius: bandRadius);
-      final color = Color.lerp(primary, secondary, band / 4)!;
+      final color = Color.lerp(primary, secondary, band / 2)!;
       canvas.drawArc(
         bounds,
-        0.3 + band * 0.42,
-        1.18 - band * 0.1,
+        0.3 + band * 0.58,
+        1.28 - band * 0.18,
         false,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
-          ..strokeWidth = 18 - band * 2.7
-          ..color = color.withValues(alpha: 0.17 + band * 0.018)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 11),
+          ..strokeWidth = 22 - band * 4
+          ..color = color.withValues(alpha: 0.22 + band * 0.04)
+          ..blendMode = BlendMode.plus
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
       );
       canvas.restore();
-    }
-    canvas.restore();
-  }
-
-  void _drawEnergyRibbons(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    double turn,
-  ) {
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    for (var ribbon = 0; ribbon < 6; ribbon++) {
-      final direction = ribbon.isEven ? 1.0 : -1.0;
-      final cycles = 2 + ribbon % 3;
-      final ribbonRadius = radius * (0.7 + ribbon * 0.11);
-      final bounds = Rect.fromCircle(center: Offset.zero, radius: ribbonRadius);
-      canvas.drawArc(
-        bounds,
-        turn * cycles * direction + ribbon * 1.02,
-        0.62 + ribbon * 0.055,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeWidth = 3.2 - ribbon * 0.24
-          ..color = Color.lerp(
-            primary,
-            accent,
-            ribbon / 7,
-          )!.withValues(alpha: 0.78 - ribbon * 0.06),
-      );
     }
     canvas.restore();
   }
@@ -489,6 +385,7 @@ class _FogSyncPainter extends CustomPainter {
       Offset.zero,
       radius,
       Paint()
+        ..blendMode = BlendMode.plus
         ..shader = RadialGradient(
           colors: colors,
           stops: stops,
@@ -501,8 +398,7 @@ class _FogSyncPainter extends CustomPainter {
   bool shouldRepaint(covariant _FogSyncPainter oldDelegate) {
     return animation != oldDelegate.animation ||
         primary != oldDelegate.primary ||
-        secondary != oldDelegate.secondary ||
-        accent != oldDelegate.accent;
+        secondary != oldDelegate.secondary;
   }
 }
 

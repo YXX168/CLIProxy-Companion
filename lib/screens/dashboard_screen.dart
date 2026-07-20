@@ -154,18 +154,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 10),
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 420),
+                        duration: const Duration(milliseconds: 620),
+                        reverseDuration: const Duration(milliseconds: 360),
                         switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeInCubic,
+                        switchOutCurve: Curves.easeOutCubic,
+                        layoutBuilder: (currentChild, previousChildren) =>
+                            Stack(
+                              alignment: Alignment.topCenter,
+                              children: [
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            ),
                         transitionBuilder: (child, animation) => FadeTransition(
                           opacity: animation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0, 0.025),
-                              end: Offset.zero,
-                            ).animate(animation),
-                            child: child,
-                          ),
+                          child: child,
                         ),
                         child: _loading
                             ? SyncOrbLoader(
