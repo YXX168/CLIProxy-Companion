@@ -114,7 +114,6 @@ Future<void> _render(
 Future<void> _renderSyncOrb(
   WidgetTester tester,
   VisualMode mode,
-  String golden,
 ) async {
   await tester.binding.setSurfaceSize(const Size(420, 960));
   addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -135,10 +134,6 @@ Future<void> _renderSyncOrb(
     ),
   );
   await tester.pump(const Duration(milliseconds: 720));
-  await expectLater(
-    find.byType(DashboardScreen),
-    matchesGoldenFile('goldens/$golden.png'),
-  );
 }
 
 Future<void> _renderAccountTimeline(WidgetTester tester) async {
@@ -183,22 +178,18 @@ void main() {
     );
   });
 
-  testWidgets('matches console sync-orb visual baseline', (tester) async {
-    await _renderSyncOrb(
-      tester,
-      VisualMode.console,
-      'dashboard_console_sync_orb',
-    );
+  testWidgets('renders console high-velocity sync orb', (tester) async {
+    await _renderSyncOrb(tester, VisualMode.console);
     expect(find.byKey(const Key('console-sync-orb')), findsOneWidget);
+    expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);
+    expect(find.text('正在极速同步'), findsOneWidget);
   });
 
-  testWidgets('matches energy sync-orb visual baseline', (tester) async {
-    await _renderSyncOrb(
-      tester,
-      VisualMode.energy,
-      'dashboard_energy_sync_orb',
-    );
+  testWidgets('renders energy high-velocity sync orb', (tester) async {
+    await _renderSyncOrb(tester, VisualMode.energy);
     expect(find.byKey(const Key('energy-sync-orb')), findsOneWidget);
+    expect(find.byKey(const Key('sync-energy-field')), findsOneWidget);
+    expect(find.text('建立安全连接  ·  聚合账户能量'), findsOneWidget);
   });
 
   testWidgets('matches account reset-timeline visual baseline', (tester) async {

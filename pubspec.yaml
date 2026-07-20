@@ -1,7 +1,7 @@
 name: cliproxy_companion
 description: A privacy-conscious Android dashboard for CLIProxyAPI account quotas.
 publish_to: 'none'
-version: 1.2.1+14
+version: 1.2.2+15
 
 environment:
   sdk: ^3.11.4

@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import '../models/visual_mode.dart';
 import '../theme/app_theme.dart';
 
-/// Animated first-sync state that follows the dashboard's neon glass style.
+/// A high-velocity first-sync scene inspired by Pulsar's soft light clusters.
+///
+/// The animation is driven directly by vsync, so high-refresh displays can
+/// paint at their native cadence. Only the two CustomPainters repaint.
 class SyncOrbLoader extends StatefulWidget {
   const SyncOrbLoader({required this.visualMode, super.key});
 
@@ -25,7 +28,7 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 5600),
+      duration: const Duration(seconds: 12),
     );
   }
 
@@ -38,7 +41,7 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
     if (disabled) {
       _controller
         ..stop()
-        ..value = 0.18;
+        ..value = 0.137;
     } else {
       _controller.repeat();
     }
@@ -58,402 +61,604 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
 
     return Semantics(
       liveRegion: true,
-      label: '正在同步账户额度，请稍候',
-      child: RepaintBoundary(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            final phase = _controller.value;
-            return Container(
-              key: Key(energyMode ? 'energy-sync-orb' : 'console-sync-orb'),
-              height: 430,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(26),
-                gradient: const LinearGradient(
-                  colors: [Color(0xDC141E31), Color(0xE6090E19)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      label: '正在极速同步账户状态，请稍候',
+      child: SizedBox(
+        key: Key(energyMode ? 'energy-sync-orb' : 'console-sync-orb'),
+        height: 500,
+        child: Column(
+          children: [
+            SizedBox(
+              key: const Key('sync-energy-field'),
+              width: double.infinity,
+              height: 382,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _HyperSyncPainter(
+                    animation: _controller,
+                    primary: primary,
+                    secondary: secondary,
+                  ),
                 ),
-                border: Border.all(color: primary.withValues(alpha: 0.22)),
-                boxShadow: [
-                  BoxShadow(
-                    color: primary.withValues(alpha: 0.08),
-                    blurRadius: 32,
-                    spreadRadius: -8,
-                  ),
-                  const BoxShadow(
-                    color: Color(0x8A000000),
-                    blurRadius: 28,
-                    offset: Offset(0, 16),
-                  ),
-                ],
               ),
-              child: Stack(
-                alignment: Alignment.center,
+            ),
+            Transform.translate(
+              offset: const Offset(0, -5),
+              child: Column(
                 children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: _SyncOrbPainter(
-                        phase: phase,
-                        primary: primary,
-                        secondary: secondary,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 24,
-                    child: _SyncBadge(primary: primary, phase: phase),
-                  ),
-                  Positioned(
-                    left: 24,
-                    right: 24,
-                    bottom: 27,
-                    child: Column(
-                      children: [
-                        Text(
-                          '正在同步账户额度',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.4,
-                                shadows: [
-                                  Shadow(
-                                    color: primary.withValues(alpha: 0.45),
-                                    blurRadius: 18,
-                                  ),
-                                ],
-                              ),
-                        ),
-                        const SizedBox(height: 7),
-                        Text(
-                          '建立安全连接  ·  读取账户状态',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: const Color(0xFF8391AA),
-                                fontSize: 11,
-                                letterSpacing: 0.7,
-                              ),
-                        ),
-                        const SizedBox(height: 13),
-                        _SignalDots(
-                          phase: phase,
-                          primary: primary,
-                          secondary: secondary,
+                  Text(
+                    '正在极速同步',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.1,
+                      shadows: [
+                        Shadow(
+                          color: primary.withValues(alpha: 0.58),
+                          blurRadius: 20,
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '建立安全连接  ·  聚合账户能量',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF8795AE),
+                      fontSize: 11,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 13),
+                  SizedBox(
+                    width: 156,
+                    height: 12,
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: _VelocityIndicatorPainter(
+                          animation: _controller,
+                          primary: primary,
+                          secondary: secondary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _SyncBadge extends StatelessWidget {
-  const _SyncBadge({required this.primary, required this.phase});
-
-  final Color primary;
-  final double phase;
-
-  @override
-  Widget build(BuildContext context) {
-    final pulse = (math.sin(phase * math.pi * 4) + 1) / 2;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: const Color(0x6E101827),
-        borderRadius: BorderRadius.circular(99),
-        border: Border.all(color: primary.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: primary,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: primary.withValues(alpha: 0.5 + pulse * 0.35),
-                  blurRadius: 5 + pulse * 6,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'INITIAL SYNC',
-            style: TextStyle(
-              color: primary.withValues(alpha: 0.9),
-              fontSize: 9,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SignalDots extends StatelessWidget {
-  const _SignalDots({
-    required this.phase,
+class _HyperSyncPainter extends CustomPainter {
+  _HyperSyncPainter({
+    required this.animation,
     required this.primary,
     required this.secondary,
-  });
+  }) : super(repaint: animation);
 
-  final double phase;
-  final Color primary;
-  final Color secondary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var index = 0; index < 3; index++) ...[
-          if (index > 0) const SizedBox(width: 7),
-          Builder(
-            builder: (context) {
-              final wave =
-                  (math.sin((phase * 3 - index * 0.22) * math.pi * 2) + 1) / 2;
-              final color = index == 1 ? secondary : primary;
-              return Transform.scale(
-                scale: 0.72 + wave * 0.38,
-                child: Container(
-                  width: 5,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.35 + wave * 0.65),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withValues(alpha: wave * 0.65),
-                        blurRadius: 7,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _SyncOrbPainter extends CustomPainter {
-  const _SyncOrbPainter({
-    required this.phase,
-    required this.primary,
-    required this.secondary,
-  });
-
-  final double phase;
+  final Animation<double> animation;
   final Color primary;
   final Color secondary;
 
   static const _stars = <Offset>[
-    Offset(0.08, 0.22),
-    Offset(0.15, 0.47),
-    Offset(0.22, 0.31),
-    Offset(0.29, 0.16),
-    Offset(0.35, 0.56),
-    Offset(0.43, 0.25),
-    Offset(0.56, 0.14),
-    Offset(0.63, 0.55),
-    Offset(0.72, 0.25),
-    Offset(0.81, 0.43),
-    Offset(0.88, 0.19),
-    Offset(0.92, 0.54),
+    Offset(0.05, 0.18),
+    Offset(0.09, 0.48),
+    Offset(0.13, 0.31),
+    Offset(0.18, 0.68),
+    Offset(0.23, 0.12),
+    Offset(0.27, 0.42),
+    Offset(0.32, 0.76),
+    Offset(0.37, 0.22),
+    Offset(0.43, 0.61),
+    Offset(0.48, 0.09),
+    Offset(0.55, 0.73),
+    Offset(0.61, 0.18),
+    Offset(0.66, 0.54),
+    Offset(0.72, 0.08),
+    Offset(0.76, 0.72),
+    Offset(0.81, 0.29),
+    Offset(0.86, 0.59),
+    Offset(0.91, 0.16),
+    Offset(0.95, 0.43),
   ];
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, 205);
-    final shortestSide = math.min(size.width, size.height);
-    final scale = (shortestSide / 430).clamp(0.74, 1.0);
-    final pulse = (math.sin(phase * math.pi * 2) + 1) / 2;
+    final phase = animation.value;
+    final turn = phase * math.pi * 2;
+    final scale = (size.width / 390).clamp(0.78, 1.12);
+    final center = Offset(size.width / 2, size.height * 0.5);
+    final coreRadius = 76.0 * scale;
+    final breath = 1 + math.sin(turn * 2) * 0.035;
 
-    final ambientRect = Rect.fromCircle(center: center, radius: 165 * scale);
-    canvas.drawCircle(
+    _drawStarField(canvas, size, turn);
+    _drawAmbientEnergy(canvas, center, coreRadius, breath);
+    _drawRadialVelocityRays(canvas, center, coreRadius, turn);
+    _drawParticleFlow(canvas, center, coreRadius, turn);
+
+    _drawOrbit(
+      canvas,
       center,
-      165 * scale,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            primary.withValues(alpha: 0.13 + pulse * 0.04),
-            secondary.withValues(alpha: 0.045),
-            Colors.transparent,
-          ],
-          stops: const [0, 0.5, 1],
-        ).createShader(ambientRect),
+      motion: turn * 8,
+      width: 350 * scale,
+      height: 132 * scale,
+      tilt: -0.24,
+      color: primary,
+      accent: secondary,
+      alpha: 0.78,
+      nodeRadius: 3.2 * scale,
+    );
+    _drawOrbit(
+      canvas,
+      center,
+      motion: -turn * 11 + 1.7,
+      width: 270 * scale,
+      height: 226 * scale,
+      tilt: 0.72,
+      color: secondary,
+      accent: primary,
+      alpha: 0.55,
+      nodeRadius: 2.5 * scale,
+    );
+    _drawOrbit(
+      canvas,
+      center,
+      motion: turn * 6 + 3.1,
+      width: 250 * scale,
+      height: 98 * scale,
+      tilt: 0.28,
+      color: primary,
+      accent: Colors.white,
+      alpha: 0.46,
+      nodeRadius: 1.9 * scale,
+    );
+    _drawOrbit(
+      canvas,
+      center,
+      motion: -turn * 5 + 4.2,
+      width: 338 * scale,
+      height: 205 * scale,
+      tilt: -0.64,
+      color: secondary,
+      accent: primary,
+      alpha: 0.3,
+      nodeRadius: 1.5 * scale,
     );
 
+    _drawCore(canvas, center, coreRadius, turn, breath);
+    _drawCoreStreams(canvas, center, coreRadius, turn);
+    _drawForegroundFlares(canvas, center, coreRadius, turn);
+  }
+
+  void _drawStarField(Canvas canvas, Size size, double turn) {
     for (var index = 0; index < _stars.length; index++) {
       final star = _stars[index];
       final twinkle =
-          (math.sin((phase * 2 + index * 0.19) * math.pi * 2) + 1) / 2;
-      final position = Offset(star.dx * size.width, star.dy * size.height);
+          (math.sin(turn * (2 + index % 3) + index * 1.71) + 1) / 2;
       canvas.drawCircle(
-        position,
-        0.6 + twinkle * 0.9,
+        Offset(star.dx * size.width, star.dy * size.height),
+        0.45 + twinkle * (index % 5 == 0 ? 1.1 : 0.55),
         Paint()
           ..color = (index.isEven ? primary : secondary).withValues(
-            alpha: 0.12 + twinkle * 0.38,
+            alpha: 0.12 + twinkle * 0.48,
           ),
       );
     }
+  }
 
-    _drawOrbit(
+  void _drawAmbientEnergy(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double breath,
+  ) {
+    _drawSoftCircle(
       canvas,
       center,
-      width: 238 * scale,
-      height: 100 * scale,
-      rotation: -0.22,
-      progress: phase,
-      color: primary,
-      particleRadius: 3.1 * scale,
+      radius * 2.42 * breath,
+      [
+        primary.withValues(alpha: 0.2),
+        secondary.withValues(alpha: 0.07),
+        Colors.transparent,
+      ],
+      const [0, 0.48, 1],
     );
-    _drawOrbit(
+    _drawSoftCircle(
       canvas,
       center,
-      width: 194 * scale,
-      height: 142 * scale,
-      rotation: 0.62,
-      progress: 1 - phase * 0.72,
-      color: secondary,
-      particleRadius: 2.5 * scale,
+      radius * 1.72 * breath,
+      [
+        Colors.white.withValues(alpha: 0.08),
+        primary.withValues(alpha: 0.15),
+        Colors.transparent,
+      ],
+      const [0, 0.52, 1],
     );
-    _drawOrbit(
-      canvas,
-      center,
-      width: 148 * scale,
-      height: 176 * scale,
-      rotation: -0.5,
-      progress: phase * 0.56 + 0.32,
-      color: primary,
-      particleRadius: 1.8 * scale,
-    );
+  }
 
-    final coreRadius = (48 + pulse * 4) * scale;
-    canvas.drawCircle(
-      center,
-      coreRadius * 1.25,
-      Paint()
-        ..color = primary.withValues(alpha: 0.24)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 28),
-    );
-    final coreRect = Rect.fromCircle(center: center, radius: coreRadius);
-    canvas.drawCircle(
-      center,
-      coreRadius,
-      Paint()
-        ..shader = RadialGradient(
-          center: const Alignment(-0.28, -0.32),
-          colors: [
-            Colors.white.withValues(alpha: 0.96),
-            primary.withValues(alpha: 0.9),
-            secondary.withValues(alpha: 0.46),
-            primary.withValues(alpha: 0.04),
-          ],
-          stops: const [0, 0.17, 0.58, 1],
-        ).createShader(coreRect),
-    );
+  void _drawRadialVelocityRays(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double turn,
+  ) {
+    final paint = Paint()..strokeCap = StrokeCap.round;
+    for (var index = 0; index < 24; index++) {
+      final angle = turn * (index.isEven ? 3 : -2) + index * math.pi / 12;
+      final pulse = (math.sin(turn * 8 + index * 0.91) + 1) / 2;
+      final inner = radius * (1.22 + (index % 4) * 0.08);
+      final outer = inner + 9 + pulse * (12 + index % 3 * 5);
+      final direction = Offset(math.cos(angle), math.sin(angle));
+      paint
+        ..strokeWidth = index % 6 == 0 ? 1.35 : 0.65
+        ..color = (index.isEven ? primary : secondary).withValues(
+          alpha: 0.08 + pulse * 0.28,
+        );
+      canvas.drawLine(
+        center + direction * inner,
+        center + direction * outer,
+        paint,
+      );
+    }
+  }
 
-    final ringPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 2.2 * scale
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: math.pi * 2,
-        colors: [
-          Colors.transparent,
-          primary.withValues(alpha: 0.95),
-          secondary.withValues(alpha: 0.72),
-          Colors.transparent,
-        ],
-        stops: const [0, 0.35, 0.68, 1],
-        transform: GradientRotation(phase * math.pi * 2),
-      ).createShader(Rect.fromCircle(center: center, radius: 68 * scale));
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: 68 * scale),
-      -math.pi * 0.72,
-      math.pi * 1.52,
-      false,
-      ringPaint,
-    );
+  void _drawParticleFlow(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double turn,
+  ) {
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(-0.18);
+    final tailPaint = Paint()..strokeCap = StrokeCap.round;
+    final particlePaint = Paint();
 
-    final flareAngle = phase * math.pi * 2;
-    final flare =
-        center +
-        Offset(math.cos(flareAngle), math.sin(flareAngle)) * 68 * scale;
-    canvas.drawCircle(
-      flare,
-      2.2 * scale,
-      Paint()
-        ..color = Colors.white
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2),
-    );
+    for (var index = 0; index < 64; index++) {
+      final direction = index.isEven ? 1.0 : -1.0;
+      final speed = 5 + index % 5 * 2;
+      final angle = turn * speed * direction + index * 2.399963;
+      final particleRadius = radius * (1.3 + (index % 17) * 0.071);
+      final flattening = 0.36 + (index % 4) * 0.055;
+      final point = Offset(
+        math.cos(angle) * particleRadius,
+        math.sin(angle) * particleRadius * flattening,
+      );
+      final tailAngle = angle - direction * (0.045 + index % 3 * 0.018);
+      final tail = Offset(
+        math.cos(tailAngle) * particleRadius,
+        math.sin(tailAngle) * particleRadius * flattening,
+      );
+      final depth = (math.sin(angle) + 1) / 2;
+      final color = index % 7 == 0
+          ? Colors.white
+          : index % 3 == 0
+          ? secondary
+          : primary;
+
+      tailPaint
+        ..strokeWidth = 0.55 + depth * 1.05
+        ..color = color.withValues(alpha: 0.13 + depth * 0.56);
+      canvas.drawLine(tail, point, tailPaint);
+      particlePaint.color = color.withValues(alpha: 0.3 + depth * 0.68);
+      canvas.drawCircle(point, 0.55 + depth * 1.45, particlePaint);
+
+      if (index % 13 == 0) {
+        canvas.drawCircle(
+          point,
+          4.2,
+          Paint()
+            ..color = color.withValues(alpha: 0.2)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+      }
+    }
+    canvas.restore();
   }
 
   void _drawOrbit(
     Canvas canvas,
     Offset center, {
+    required double motion,
     required double width,
     required double height,
-    required double rotation,
-    required double progress,
+    required double tilt,
     required Color color,
-    required double particleRadius,
+    required Color accent,
+    required double alpha,
+    required double nodeRadius,
   }) {
-    final orbit = Rect.fromCenter(
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(tilt);
+    final bounds = Rect.fromCenter(
       center: Offset.zero,
       width: width,
       height: height,
     );
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(rotation);
     canvas.drawOval(
-      orbit,
+      bounds,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.75
-        ..color = color.withValues(alpha: 0.18),
+        ..strokeWidth = 1.05
+        ..shader = SweepGradient(
+          transform: GradientRotation(motion * 0.31),
+          colors: [
+            Colors.transparent,
+            color.withValues(alpha: alpha * 0.72),
+            accent.withValues(alpha: alpha),
+            Colors.transparent,
+          ],
+          stops: const [0, 0.28, 0.68, 1],
+        ).createShader(bounds),
     );
 
-    final angle = progress * math.pi * 2;
-    final particle = Offset(
-      math.cos(angle) * width / 2,
-      math.sin(angle) * height / 2,
-    );
-    canvas.drawCircle(
-      particle,
-      particleRadius * 3,
-      Paint()
-        ..color = color.withValues(alpha: 0.26)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
-    );
-    canvas.drawCircle(particle, particleRadius, Paint()..color = color);
+    for (var segment = 0; segment < 4; segment++) {
+      canvas.drawArc(
+        bounds,
+        motion + segment * 1.57,
+        0.2 + segment * 0.045,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = segment == 0 ? 2.65 : 1.25
+          ..strokeCap = StrokeCap.round
+          ..color = Color.lerp(color, accent, segment / 4)!.withValues(
+            alpha: alpha * (1 - segment * 0.14),
+          ),
+      );
+    }
+
+    for (var trail = 8; trail >= 0; trail--) {
+      final trailAngle = motion - trail * 0.034;
+      final point = Offset(
+        math.cos(trailAngle) * width / 2,
+        math.sin(trailAngle) * height / 2,
+      );
+      final strength = 1 - trail / 9;
+      canvas.drawCircle(
+        point,
+        nodeRadius * (0.25 + strength * 0.75),
+        Paint()
+          ..color = Color.lerp(color, Colors.white, strength * 0.45)!
+              .withValues(alpha: alpha * strength),
+      );
+    }
     canvas.restore();
   }
 
+  void _drawCore(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double turn,
+    double breath,
+  ) {
+    final core = radius * breath;
+    canvas.drawCircle(
+      center,
+      core * 1.16,
+      Paint()
+        ..color = primary.withValues(alpha: 0.34)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 25),
+    );
+    _drawSoftCircle(
+      canvas,
+      center,
+      core * 1.16,
+      [
+        Colors.white.withValues(alpha: 0.96),
+        primary.withValues(alpha: 0.94),
+        secondary.withValues(alpha: 0.52),
+        primary.withValues(alpha: 0.08),
+        Colors.transparent,
+      ],
+      const [0, 0.14, 0.46, 0.78, 1],
+      gradientCenter: const Alignment(-0.3, -0.34),
+    );
+
+    final mistA =
+        center +
+        Offset(
+          math.cos(turn * 3) * core * 0.26,
+          math.sin(turn * 4) * core * 0.2,
+        );
+    _drawSoftCircle(
+      canvas,
+      mistA,
+      core * 0.72,
+      [
+        Colors.white.withValues(alpha: 0.34),
+        primary.withValues(alpha: 0.2),
+        Colors.transparent,
+      ],
+      const [0, 0.48, 1],
+    );
+    final mistB =
+        center +
+        Offset(
+          math.sin(turn * 5 + 1.2) * core * 0.29,
+          math.cos(turn * 3 + 0.8) * core * 0.23,
+        );
+    _drawSoftCircle(
+      canvas,
+      mistB,
+      core * 0.62,
+      [
+        secondary.withValues(alpha: 0.4),
+        secondary.withValues(alpha: 0.12),
+        Colors.transparent,
+      ],
+      const [0, 0.5, 1],
+    );
+  }
+
+  void _drawCoreStreams(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double turn,
+  ) {
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    for (var stream = 0; stream < 8; stream++) {
+      final streamRadius = radius * (0.3 + stream * 0.09);
+      final bounds = Rect.fromCircle(
+        center: Offset.zero,
+        radius: streamRadius,
+      );
+      final direction = stream.isEven ? 1.0 : -1.0;
+      canvas.drawArc(
+        bounds,
+        turn * (12 - stream * 0.6) * direction + stream * 0.86,
+        0.52 + stream * 0.07,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = 2.25 - stream * 0.13
+          ..color = Color.lerp(primary, secondary, stream / 9)!.withValues(
+            alpha: 0.84 - stream * 0.07,
+          ),
+      );
+    }
+    canvas.restore();
+  }
+
+  void _drawForegroundFlares(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double turn,
+  ) {
+    final lineRect = Rect.fromCenter(
+      center: center,
+      width: radius * 3.2,
+      height: 1,
+    );
+    canvas.drawRect(
+      lineRect,
+      Paint()
+        ..shader = LinearGradient(
+          colors: [
+            Colors.transparent,
+            primary.withValues(alpha: 0.2),
+            Colors.white.withValues(alpha: 0.68),
+            secondary.withValues(alpha: 0.22),
+            Colors.transparent,
+          ],
+          stops: const [0, 0.28, 0.5, 0.72, 1],
+        ).createShader(lineRect),
+    );
+
+    for (var index = 0; index < 6; index++) {
+      final angle = turn * (9 + index) * (index.isEven ? 1 : -1) + index;
+      final distance = radius * (1.02 + index * 0.13);
+      final point =
+          center + Offset(math.cos(angle), math.sin(angle)) * distance;
+      canvas.drawCircle(
+        point,
+        index == 0 ? 2.8 : 1.25,
+        Paint()
+          ..color = (index.isEven ? Colors.white : secondary).withValues(
+            alpha: 0.82,
+          ),
+      );
+    }
+  }
+
+  void _drawSoftCircle(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    List<Color> colors,
+    List<double> stops, {
+    Alignment gradientCenter = Alignment.center,
+  }) {
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..shader = RadialGradient(
+          center: gradientCenter,
+          colors: colors,
+          stops: stops,
+        ).createShader(Rect.fromCircle(center: center, radius: radius)),
+    );
+  }
+
   @override
-  bool shouldRepaint(covariant _SyncOrbPainter oldDelegate) {
-    return phase != oldDelegate.phase ||
+  bool shouldRepaint(covariant _HyperSyncPainter oldDelegate) {
+    return animation != oldDelegate.animation ||
+        primary != oldDelegate.primary ||
+        secondary != oldDelegate.secondary;
+  }
+}
+
+class _VelocityIndicatorPainter extends CustomPainter {
+  _VelocityIndicatorPainter({
+    required this.animation,
+    required this.primary,
+    required this.secondary,
+  }) : super(repaint: animation);
+
+  final Animation<double> animation;
+  final Color primary;
+  final Color secondary;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final phase = animation.value;
+    final centerY = size.height / 2;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, centerY - 1, size.width, 2),
+        const Radius.circular(99),
+      ),
+      Paint()..color = const Color(0x262E405D),
+    );
+
+    for (var streak = 0; streak < 3; streak++) {
+      final progress = (phase * 18 + streak * 0.34) % 1;
+      final x = progress * size.width;
+      final length = 22.0 + streak * 9;
+      final rect = Rect.fromLTWH(x - length, centerY - 1.25, length, 2.5);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(99)),
+        Paint()
+          ..shader = LinearGradient(
+            colors: [
+              Colors.transparent,
+              (streak.isEven ? primary : secondary).withValues(alpha: 0.9),
+              Colors.white,
+            ],
+          ).createShader(rect),
+      );
+    }
+
+    for (var index = 0; index < 7; index++) {
+      final wave =
+          (math.sin((phase * 18 - index * 0.16) * math.pi * 2) + 1) / 2;
+      final x = size.width / 2 - 27 + index * 9;
+      canvas.drawCircle(
+        Offset(x, centerY),
+        1 + wave * 1.15,
+        Paint()
+          ..color = (index.isEven ? primary : secondary).withValues(
+            alpha: 0.2 + wave * 0.8,
+          ),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _VelocityIndicatorPainter oldDelegate) {
+    return animation != oldDelegate.animation ||
         primary != oldDelegate.primary ||
         secondary != oldDelegate.secondary;
   }
