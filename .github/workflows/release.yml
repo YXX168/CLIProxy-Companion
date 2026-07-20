@@ -81,7 +81,7 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk "dist/${name}"
           (cd dist && sha256sum "${name}" > "${name}.sha256")
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: CLIProxy-${{ github.ref_name }}-arm64
           path: dist/*
