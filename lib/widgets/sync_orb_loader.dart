@@ -28,7 +28,7 @@ class _SyncOrbLoaderState extends State<SyncOrbLoader>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 16),
+      duration: const Duration(seconds: 12),
     );
   }
 
@@ -147,253 +147,244 @@ class _FogSyncPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final phase = animation.value;
-    final turn = phase * math.pi * 2;
-    final scale = (size.width / 390).clamp(0.78, 1.12);
     final center = Offset(size.width / 2, size.height * 0.6);
-    final radius = 78.0 * scale;
-    final breath = 1 + math.sin(turn * 4) * 0.025;
+    final radius = size.shortestSide * 0.47;
+    final progress = animation.value;
+    final phase = progress * math.pi * 2;
+    final pulse = (math.sin(phase) + 1) / 2;
 
-    _drawAmbientFog(canvas, center, radius, breath);
-
-    _drawOrbit(
-      canvas,
+    canvas.drawCircle(
       center,
-      motion: turn * 4,
-      width: 352 * scale,
-      height: 136 * scale,
-      tilt: -0.2,
-      color: primary,
-      accentColor: secondary,
-      alpha: 0.92,
-    );
-    _drawOrbit(
-      canvas,
-      center,
-      motion: -turn * 5 + 1.7,
-      width: 274 * scale,
-      height: 230 * scale,
-      tilt: 0.68,
-      color: secondary,
-      accentColor: primary,
-      alpha: 0.7,
-    );
-
-    _drawFogCluster(canvas, center, radius, turn, breath);
-    _drawLensHaze(canvas, center, radius);
-  }
-
-  void _drawAmbientFog(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    double breath,
-  ) {
-    _drawSoftEllipse(
-      canvas,
-      center,
-      radius * 2.34 * breath,
-      xScale: 1.18,
-      yScale: 0.82,
-      colors: [
-        primary.withValues(alpha: 0.34),
-        secondary.withValues(alpha: 0.2),
-        Colors.transparent,
-      ],
-      stops: const [0, 0.52, 1],
-    );
-  }
-
-  void _drawOrbit(
-    Canvas canvas,
-    Offset center, {
-    required double motion,
-    required double width,
-    required double height,
-    required double tilt,
-    required Color color,
-    required Color accentColor,
-    required double alpha,
-  }) {
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(tilt);
-    final bounds = Rect.fromCenter(
-      center: Offset.zero,
-      width: width,
-      height: height,
-    );
-
-    canvas.drawOval(
-      bounds,
+      radius * (0.94 + pulse * 0.035),
       Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.6
-        ..shader = SweepGradient(
-          transform: GradientRotation(motion * 0.18),
+        ..shader = RadialGradient(
           colors: [
-            Colors.transparent,
-            color.withValues(alpha: alpha * 0.24),
-            accentColor.withValues(alpha: alpha * 0.32),
+            primary.withValues(alpha: 0.27),
+            primary.withValues(alpha: 0.12),
+            primary.withValues(alpha: 0.035),
             Colors.transparent,
           ],
-          stops: const [0, 0.28, 0.68, 1],
-        ).createShader(bounds),
+          stops: const [0, 0.28, 0.67, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: radius)),
     );
-
-    const sweep = 0.82;
-    canvas.drawArc(
-      bounds,
-      motion,
-      sweep,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 13
-        ..strokeCap = StrokeCap.round
-        ..color = color.withValues(alpha: alpha * 0.22)
-        ..blendMode = BlendMode.plus
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7),
-    );
-    canvas.drawArc(
-      bounds,
-      motion,
-      sweep,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.4
-        ..strokeCap = StrokeCap.round
-        ..color = Color.lerp(
-          color,
-          Colors.white,
-          0.16,
-        )!.withValues(alpha: alpha)
-        ..blendMode = BlendMode.plus,
-    );
-    canvas.restore();
-  }
-
-  void _drawFogCluster(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    double turn,
-    double breath,
-  ) {
-    final fogRadius = radius * breath;
-    _drawSoftEllipse(
-      canvas,
+    canvas.drawCircle(
       center,
-      fogRadius * 1.5,
-      xScale: 1.08,
-      yScale: 0.92,
-      colors: [
-        primary.withValues(alpha: 0.58),
-        secondary.withValues(alpha: 0.34),
-        Colors.transparent,
-      ],
-      stops: const [0, 0.48, 1],
-    );
-    _drawSoftEllipse(
-      canvas,
-      center,
-      fogRadius * 1.18,
-      xScale: 1.12,
-      yScale: 0.88,
-      colors: [
-        Colors.white.withValues(alpha: 0.34),
-        primary.withValues(alpha: 0.82),
-        primary.withValues(alpha: 0.22),
-        Colors.transparent,
-      ],
-      stops: const [0, 0.27, 0.64, 1],
-    );
-    _drawSoftEllipse(
-      canvas,
-      center + Offset(fogRadius * 0.1, fogRadius * 0.03),
-      fogRadius,
-      xScale: 1.2,
-      yScale: 0.78,
-      colors: [
-        secondary.withValues(alpha: 0.42),
-        primary.withValues(alpha: 0.12),
-        Colors.transparent,
-      ],
-      stops: const [0, 0.52, 1],
+      radius * 0.48,
+      Paint()
+        ..color = primary.withValues(alpha: 0.18)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
     );
 
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    for (var band = 0; band < 2; band++) {
-      canvas.save();
-      canvas.rotate(turn * (band.isEven ? 1 : -1) + band * 0.72);
-      final bandRadius = fogRadius * (0.54 + band * 0.22);
-      final bounds = Rect.fromCircle(center: Offset.zero, radius: bandRadius);
-      final color = Color.lerp(primary, secondary, band / 2)!;
-      canvas.drawArc(
-        bounds,
-        0.3 + band * 0.58,
-        1.28 - band * 0.18,
-        false,
+    for (var index = 0; index < 2; index++) {
+      final wave = (progress + index * 0.5) % 1;
+      canvas.drawCircle(
+        center,
+        radius * (0.5 + wave * 0.43),
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeWidth = 22 - band * 4
-          ..color = color.withValues(alpha: 0.22 + band * 0.04)
-          ..blendMode = BlendMode.plus
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
+          ..strokeWidth = 0.9
+          ..color = primary.withValues(alpha: (1 - wave) * 0.2),
       );
-      canvas.restore();
     }
-    canvas.restore();
-  }
 
-  void _drawLensHaze(Canvas canvas, Offset center, double radius) {
-    final lineRect = Rect.fromCenter(
-      center: center,
-      width: radius * 2.7,
-      height: 1,
-    );
-    canvas.drawRect(
-      lineRect,
-      Paint()
-        ..shader = LinearGradient(
-          colors: [
-            Colors.transparent,
-            secondary.withValues(alpha: 0.16),
-            primary.withValues(alpha: 0.68),
-            secondary.withValues(alpha: 0.16),
-            Colors.transparent,
-          ],
-          stops: const [0, 0.28, 0.5, 0.72, 1],
-        ).createShader(lineRect),
-    );
-  }
+    for (var index = 0; index < 12; index++) {
+      final angle = phase * 0.12 + index * math.pi / 6;
+      final rayPulse = (math.sin(phase * 1.4 + index * 1.7) + 1) / 2;
+      final inner = radius * 0.48;
+      final outer = radius * (0.62 + rayPulse * 0.13);
+      canvas.drawLine(
+        Offset(
+          center.dx + math.cos(angle) * inner,
+          center.dy + math.sin(angle) * inner,
+        ),
+        Offset(
+          center.dx + math.cos(angle) * outer,
+          center.dy + math.sin(angle) * outer,
+        ),
+        Paint()
+          ..strokeWidth = index.isEven ? 0.7 : 0.45
+          ..strokeCap = StrokeCap.round
+          ..color = primary.withValues(alpha: 0.055 + rayPulse * 0.055),
+      );
+    }
 
-  void _drawSoftEllipse(
-    Canvas canvas,
-    Offset center,
-    double radius, {
-    required double xScale,
-    required double yScale,
-    required List<Color> colors,
-    required List<double> stops,
-  }) {
     canvas.save();
     canvas.translate(center.dx, center.dy);
-    canvas.scale(xScale, yScale);
-    canvas.drawCircle(
-      Offset.zero,
-      radius,
+    canvas.rotate(phase * 0.24 - 0.3);
+    final wideOrbit = Rect.fromCenter(
+      center: Offset.zero,
+      width: radius * 1.82,
+      height: radius * 0.9,
+    );
+    canvas.drawOval(
+      wideOrbit,
       Paint()
-        ..blendMode = BlendMode.plus
-        ..shader = RadialGradient(
-          colors: colors,
-          stops: stops,
-        ).createShader(Rect.fromCircle(center: Offset.zero, radius: radius)),
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.65
+        ..color = primary.withValues(alpha: 0.23),
+    );
+    canvas.drawArc(
+      wideOrbit,
+      phase * 0.55,
+      math.pi * 0.58,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.25
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.5),
     );
     canvas.restore();
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(-phase * 0.18 + 0.88);
+    final tallOrbit = Rect.fromCenter(
+      center: Offset.zero,
+      width: radius * 1.18,
+      height: radius * 1.78,
+    );
+    canvas.drawOval(
+      tallOrbit,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.55
+        ..color = secondary.withValues(alpha: 0.16),
+    );
+    canvas.drawArc(
+      tallOrbit,
+      -phase * 0.42,
+      math.pi * 0.42,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..strokeCap = StrokeCap.round
+        ..color = primary.withValues(alpha: 0.55),
+    );
+    canvas.restore();
+
+    for (var index = 0; index < 6; index++) {
+      final speed = 0.38 + (index % 3) * 0.11;
+      final angle = phase * speed + index * math.pi * 2 / 6;
+      final orbitX = radius * (0.61 + (index % 2) * 0.17);
+      final orbitY = radius * (0.43 + (index % 3) * 0.08);
+      final particle = Offset(
+        center.dx + math.cos(angle) * orbitX,
+        center.dy + math.sin(angle) * orbitY,
+      );
+      final particleSize = index == 0 ? 2.1 : 1.15 + (index % 2) * 0.35;
+      if (index == 0 || index == 3) {
+        canvas.drawCircle(
+          particle,
+          particleSize * 2.6,
+          Paint()
+            ..color = primary.withValues(alpha: index == 0 ? 0.24 : 0.1)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        );
+      }
+      canvas.drawCircle(
+        particle,
+        particleSize,
+        Paint()
+          ..color = index == 0
+              ? Colors.white.withValues(alpha: 0.95)
+              : primary.withValues(alpha: 0.8),
+      );
+      if (index == 0) {
+        final flarePaint = Paint()
+          ..strokeWidth = 0.7
+          ..strokeCap = StrokeCap.round
+          ..color = Colors.white.withValues(alpha: 0.46);
+        canvas.drawLine(
+          particle.translate(-4, 0),
+          particle.translate(4, 0),
+          flarePaint,
+        );
+        canvas.drawLine(
+          particle.translate(0, -4),
+          particle.translate(0, 4),
+          flarePaint,
+        );
+      }
+    }
+
+    final ringRect = Rect.fromCircle(center: center, radius: radius * 0.6);
+    canvas.drawCircle(
+      center,
+      radius * 0.6,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8
+        ..color = primary.withValues(alpha: 0.13),
+    );
+    canvas.drawArc(
+      ringRect,
+      phase * 0.34 - math.pi / 2,
+      math.pi * 1.45,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.75
+        ..strokeCap = StrokeCap.round
+        ..shader = SweepGradient(
+          transform: GradientRotation(phase * 0.34),
+          colors: [
+            primary.withValues(alpha: 0.16),
+            primary.withValues(alpha: 0.94),
+            secondary.withValues(alpha: 0.82),
+            Colors.white.withValues(alpha: 0.76),
+            primary.withValues(alpha: 0.16),
+          ],
+        ).createShader(ringRect),
+    );
+
+    canvas.drawCircle(
+      center,
+      radius * (0.31 + pulse * 0.018),
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.3, -0.34),
+          colors: [
+            Colors.white.withValues(alpha: 0.52),
+            primary.withValues(alpha: 0.86),
+            primary.withValues(alpha: 0.32),
+            Colors.transparent,
+          ],
+          stops: const [0, 0.26, 0.72, 1],
+        ).createShader(
+          Rect.fromCircle(center: center, radius: radius * 0.34),
+        ),
+    );
+    canvas.drawCircle(
+      center,
+      radius * 0.33,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.9
+        ..shader = SweepGradient(
+          transform: GradientRotation(-phase * 0.2),
+          colors: [
+            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.52),
+            primary.withValues(alpha: 0.32),
+            Colors.white.withValues(alpha: 0.08),
+          ],
+        ).createShader(
+          Rect.fromCircle(center: center, radius: radius * 0.34),
+        ),
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius * 0.25),
+      -phase * 0.7 - math.pi * 0.15,
+      math.pi * 0.72,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.1
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.48),
+    );
   }
 
   @override
