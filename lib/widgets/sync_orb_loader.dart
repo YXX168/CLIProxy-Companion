@@ -352,9 +352,7 @@ class _FogSyncPainter extends CustomPainter {
             Colors.transparent,
           ],
           stops: const [0, 0.26, 0.72, 1],
-        ).createShader(
-          Rect.fromCircle(center: center, radius: radius * 0.34),
-        ),
+        ).createShader(Rect.fromCircle(center: center, radius: radius * 0.34)),
     );
     canvas.drawCircle(
       center,
@@ -370,9 +368,7 @@ class _FogSyncPainter extends CustomPainter {
             primary.withValues(alpha: 0.32),
             Colors.white.withValues(alpha: 0.08),
           ],
-        ).createShader(
-          Rect.fromCircle(center: center, radius: radius * 0.34),
-        ),
+        ).createShader(Rect.fromCircle(center: center, radius: radius * 0.34)),
     );
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius * 0.25),
